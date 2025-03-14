@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="400" viewBox="0 0 800 400">
+  <defs>
+    <!-- Define a linear gradient from dark-blue to pinkish red -->
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00008B"/>
+      <stop offset="100%" stop-color="#FF1493"/>
+    </linearGradient>
+
+    <!-- Define a filter to create a flag-like waving effect -->
+    <filter id="wavy">
+      <!-- Create turbulence noise -->
+      <feTurbulence 
+          type="fractalNoise" 
+          baseFrequency="0.02 0.05" 
+          numOctaves="3" 
+          result="noise">
+        <animate 
+            attributeName="baseFrequency" 
+            dur="8s" 
+            values="0.02 0.05;0.03 0.07;0.02 0.05" 
+            repeatCount="indefinite" />
+      </feTurbulence>
+      <!-- Displace the text using the noise from feTurbulence -->
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="20"/>
+    </filter>
+  </defs>
+
+  <!-- White background -->
+  <rect width="800" height="400" fill="#45565c"/>
+
+  <!-- Apply the wavy filter to the faded Bitcoin Cash symbol -->
+  <g filter="url(#wavy)">
+    <text x="50%" y="50%" 
+          dominant-baseline="middle" 
+          text-anchor="middle" 
+          font-size="150" 
+          font-family="Arial, sans-serif" 
+          fill="url(#grad)" 
+          opacity="0.3">
+      BCH
+    </text>
+  </g>
+</svg>

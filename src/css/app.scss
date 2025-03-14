@@ -1,0 +1,569 @@
+//-----------------------------------//
+//  Annotations by Charlie N. Odon   //
+//-----------------------------------//
+
+:root {
+    --q-font-family: 'Trebuchet MS', Arial, sans-serif;
+  }
+
+  * {
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    }
+//--------------- for nice scrollbars --------------------------
+  *::-webkit-scrollbar {
+    width: 6px !important; 
+    background: none !important;
+  }
+ 
+  *::-webkit-scrollbar-thumb {
+    background: $primary-x-darker-bg !important; 
+    border-radius: 10px !important; 
+    border: 2px solid transparent !important; 
+  }
+  
+  *::-webkit-scrollbar-thumb:hover {
+    background: $primary-xx-darker-bg !important; 
+  }
+
+  //--------------------------------------------------------
+  body {
+    font-family: var(--q-font-family) !important;
+  }
+
+  //-----------------------------------
+
+  .paytaca-logo-con{
+    display: inline-block;
+    background-image: url('assets/paytaca_dark.png');
+    background-repeat:no-repeat;
+    background-size:contain;
+    background-position: center;
+    position: relative;
+    top: 4px;
+    left: 4px;
+    min-height: 40px;
+    min-width: 150px;
+  }
+  .kkb-title{
+    display: inline-block;
+    font-weight: bold;
+    font-size: 28px;
+    transform: translateY(-5px);
+    top: 0;
+    color: #faefef;
+    font-family:'Trebuchet MS', Arial, sans-serif;
+    padding-left: 10px;
+    padding-top: 0;
+    min-height: 30px;
+    min-width: 100px;
+    cursor: default;
+    text-shadow: 1px 1px 1px rgba(249, 239, 239, 0.171);
+  }
+
+  //------------- quick styles ----------
+  .smaller{
+    font-size: smaller;
+  }
+  .small{
+    font-size: small;
+  }
+  .x-small-x{
+    font-size: x-small;
+  }
+  .xx-small{
+    font-size: xx-small;
+  }
+  .medium{
+    font-size: medium;
+  }
+  .large{
+    font-size: large;
+  }
+  .x-large{
+    font-size: x-large;
+  }
+  .xx-large{
+    font-size: xx-large;
+  }
+  .padding-0{
+    padding: 0;
+  }
+  .padding-thin{
+    padding: 2px;
+  }
+  .v-padding-0{
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  .v-padding-thin{
+    padding-top: 2px;
+    padding-bottom: 2px;
+  }
+  .margin-0{
+    margin: 0;
+  }
+  .rounded-corners-1{
+    border-radius: 4px;
+  }
+  .rounded-corners-2{
+    border-radius: 18px;
+  }
+
+//--------- for dropdown menu items --------------------
+.q-menu .q-item {
+    font-size: smaller !important;  
+    padding: 2px 12px !important; 
+    height:fit-content;
+    margin: 0 !important;
+    //background-color: $primary-bgrey-bg;
+  }
+
+  .row.no-wrap {
+    flex-wrap: nowrap; 
+  }
+  
+/* ----- for item name colum ------- */
+  .item-name-header,
+  .item-name-field {
+    flex-grow: 1; 
+    min-width: 100px;
+    max-width: 100%; 
+    margin-right: 8px;
+  }
+  .item-name-field{
+    margin-left: 8px;
+  }
+
+  
+  /* ---- for left 3 columns wrapper -----*/
+  .field-group {
+    display: flex;
+    align-items: center;
+    gap: 8px; 
+    flex-shrink: 0;
+  }
+  
+  /* -------- for item quantity column -------*/
+  .quantity-header{
+    width: 80px; 
+    text-align: center;
+  }
+  .quantity-field {
+    flex: 0 0 80px;
+    max-width: 80px;
+    text-align: center;
+  }
+
+  /* -------- for item price column -------*/
+  .price-header {
+    width: 130px; 
+    text-align: center;
+  } 
+  .price-field {
+    flex: 0 0 130px;
+    max-width: 130px;
+    text-align: center;
+  }
+  
+  /* ---for item 'delete item' column --------*/
+  .actions-header{
+    width: 40px;
+    flex-shrink: 0;  
+  }
+  .delete-btn {
+    width: 40px;
+    flex-shrink: 0;
+    margin-right: 8px;
+    color: #000 !important;
+  }
+
+ /* -------- hides the default up & down arrow for number fields ---------*/ 
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+
+/* ------ for custom unit label of price fields ---- */
+.bch-unit {
+    font-size: x-small;
+    font-weight: bold;
+    margin-right: -1px;
+    color: darkgoldenrod;
+    box-sizing: border-box;
+  }
+  
+
+
+/*------------- contains custom label and input field -----*/
+  .custom-field {
+    display: flex;
+    align-items: center;
+    background: transparent;
+    border-radius: 4px;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+  
+
+  /*--------- custom labels on the shaded left of custom input fields -------*/
+  .custom-label {
+    background: $primary-headers-bg;
+    padding: 10px 12px;
+    min-width: 120px; 
+    text-align: center;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+
+  /*----- for custom input fields with up and down arrows ----*/
+  .custom-input {
+    flex: 1;
+    padding: 0;
+    border: none;
+    font-size: small;
+    .custom-arrows {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        right: 8px; 
+        top: -20%;
+        transform-origin: center;
+        transform: scaleY(0.70);
+        gap: 0px; 
+      }
+    
+      .q-btn {
+        min-width: 32px; 
+        padding: 0;
+      }
+  }
+
+
+  /* ------- for custom input fields in items ------*/
+  .item-inputs.custom-input {
+    flex: 1;
+    padding: 0;
+    border: none;
+    font-size: small;
+    overflow: hidden;
+    box-sizing: border-box;
+
+    .custom-arrows {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        right: 5px; 
+        top: -20%;
+        transform-origin: center;
+        transform: scaleY(0.64);
+        gap: 0px; 
+        overflow: hidden;
+        box-sizing: border-box;
+        height: max-content;
+        //color: #8b8b8b;
+ 
+      }
+    
+      .q-btn {
+        min-width: 32px; 
+        padding: 0;
+        margin: 0;
+        overflow: hidden;
+        box-sizing: border-box;
+      }
+  }
+
+  /* ----- custom input fields with not rounded left-side ----*/
+  .c-br-1{
+    .q-field__control {
+        border-top-left-radius: 0 !important;
+        border-bottom-left-radius: 0 !important;
+        background: $transparent-x-darker-bg;
+        box-sizing: border-box;
+      }
+  }
+
+  /*---------------------------------------*/
+
+  .rounded-card {
+    min-width: 420px;
+    max-width: 500px;
+    border-radius: 12px;
+    box-sizing: border-box;
+  }
+  
+
+  //------------ q-list container ------------
+
+  .q-list-container {
+    width: inherit;
+    margin-right: 2px;
+    overflow-y: scroll; /* Allow vertical scrolling */
+    transform: translateX(1px);
+    border: 1px solid $primary-dark-border; /* Border for better visibility */
+    background: $transparent-dark-bg; /* Background color */
+    box-sizing: border-box;
+    padding-bottom: 1px;
+  }
+  .item-list-container{
+    height: 195px;
+  }
+
+  .item-list-tally-container{
+    height: 66px;
+    margin-top: 0;
+    background-color: $transparent-x-darker-bg;
+    padding-right: 0px;
+  }
+  .item-list-tally{
+    min-height: 66px;
+    background-color: $transparent-x-darker-bg;
+  }
+
+
+
+.q-list {
+    overflow-x: hidden; /* Prevent horizontal overflow */
+    box-sizing: border-box;
+}
+  
+
+
+/*-----for item list background---*/
+.list-item {
+    background: transparent; 
+    overflow-x: hidden; 
+    box-sizing: border-box;
+
+}
+.item-tally-row{
+    padding-left: 8px;
+    padding-right: 8px;
+    min-height: 20px !important;
+    box-sizing: border-box;
+    
+}
+
+.item-inputs {
+    background: transparent; /* Consistent background for inputs */
+    overflow-x: hidden; /* Prevent horizontal overflow */
+    box-sizing: border-box;
+}
+
+
+/* ---------- Blue-glow Shaded input fields------------------- */
+  .q-field{
+    background: $transparent-x-darker-bg !important;
+    overflow-x: hidden;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+
+
+  //------------ item list header row ---------------//
+  .header-row {
+    background-color: $primary-headers-bg !important; 
+    padding: 8px 12px; 
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+  }
+  //------------------------------------
+  .footer-row {
+    margin-top: 0;
+    background-color: $primary-headers-bg !important; 
+    padding: 4px 12px; 
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+  }
+
+  //-------- for all 'proceed' buttons ------------//
+  .proceed-btn{
+    background-color: $primary-imp-action-bg;
+    font-weight: bold;
+    min-width: 200px;
+  }
+
+  //--------------dropdown list container--------------
+
+  .q-menu.q-position-engine.scroll{
+    max-height: 180px ;
+    background-color: $primary-bgrey-bg;
+  }
+
+  //-------------------for add expense q-card------------
+  .kkb-forms{
+    min-width: 700px; 
+    background-color: $primary-dark-bg; 
+    background-image: url('assets/form-bg-1.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+    max-width: 700px; 
+    overflow-y: hidden; 
+    transform: scale(0.8); 
+    border-radius: 10px; 
+    transform-origin: center;
+  }
+//--------------------------------------
+  .action-btn{
+    background-color: $primary-action-bg;
+    font-weight: bold;
+  }
+
+//--------------------------------------------
+.cancel-btn{
+  font-weight: bold;
+  color: $input-text-grey;
+  background: $transparent-darker-bg;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.float-btn{
+  font-weight: bold;
+  padding-left: 10px; 
+  padding-right: 10px;
+  font-size: smaller;
+  position: absolute;
+  min-width: 130px;
+  background-color: $primary-imp-action-bg;
+  border-radius: 18px;
+  box-shadow: 1px 0px 1px 2px rgba(26, 26, 26, 0.1);
+  bottom: 20px;
+  right: 85px;
+}
+.float-btn:hover, .proceed-btn:hover{
+  background: $primary-hover;
+}
+
+.q-field__control{
+  border: 1px solid $primary-dark-border;
+}
+
+.q-field__native, .q-field__input{
+  color: $input-text-grey;
+  font-weight: bold;
+}
+
+
+.page-bg{
+  background-color: $primary-x-darker-bg;
+
+}
+
+.toolbar-btn{
+  font-size: smaller;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+
+.floating-dialog {
+  width: 300px; /* Adjust width as needed */
+  position: fixed;
+  top: 54px; /* Aligns with header */
+  right: 2px;
+  height: 100vh;
+  background-color: $primary-bgrey-bg !important;
+  background-image: url('assets/bitcoin-logo-dark-transparent.png') !important;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
+  border-radius: 0; /* Remove rounded edges */
+}
+
+
+ .field-text{
+    color: $input-text-grey;
+ }
+
+.split-expense-q-card{
+  overflow-y: hidden !important;
+  .q-card__section{
+      padding-top: 4px !important;
+      padding-bottom: 4px !important;
+  }
+}
+
+
+ .payer-list-container{
+    height: 150px;
+    display: flex;
+    padding: 0 !important;
+    .q-pa-none.list-item .custom-input.payer-name{
+      max-height: 40px !important;
+      margin: 1px 0px 8px 8px !important;
+      width: 200px;
+      box-sizing: border-box;
+      padding: 0px auto;
+    }
+    .q-pa-none.list-item .custom-input.payer-amount{
+      width: 200px;
+      margin: 1px 0px 4px 2px;
+      max-height: 40px !important;
+      .bch-unit{
+        padding-right: 4px;
+      }
+    }
+    .q-pa-none.list-item .delete-btn{
+      margin: 1px 0px 2px 2px;
+      max-height: 40px !important;
+    }
+ }
+
+
+.participant-info {
+  width: 120px; 
+  height: 100%; 
+  display: flex;
+  flex-direction: column; 
+  justify-content: center;
+  align-items: flex-start;
+  padding: 0px;
+  .custom-label{
+    padding: 12px 0px 2px 2px;
+    border-top-left-radius: 4px;
+  }
+  .participant-count-field {
+    display: flex !important;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    justify-content: center;
+    text-align: center;
+    font-size: medium;
+    background-color: $primary-headers-bg;
+    border-bottom-left-radius: 4px;
+    .count-text{
+      background-color: $transparent-x-darker-bg;
+      color: $input-text-grey;
+      font-weight: bold;
+      font-size: 16px;
+      width: 80px;
+      margin: auto;
+      padding: 4px;
+      border-radius: 30px;
+      border: 1px solid $primary-dark-border;
+    }
+  }
+}
+
+.payer-list-wrapper {
+  flex-grow: 1; /* Takes remaining space */
+  display: block;
+  flex-direction: column;
+  border: 1px solid $primary-dark-border; /* Border for better visibility */
+  background: $transparent-dark-bg; /* Background color */
+  box-sizing: border-box;
+  overflow-y: scroll;
+  padding-top: 4px;
+  padding-bottom: 4px;
+
+}

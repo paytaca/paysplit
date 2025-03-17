@@ -6,6 +6,9 @@
     --q-font-family: 'Trebuchet MS', Arial, sans-serif;
   }
 
+  html{
+    background: $primary-x-darker-bg;
+  }
   * {
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
@@ -14,22 +17,23 @@
 //--------------- for nice scrollbars --------------------------
   *::-webkit-scrollbar {
     width: 6px !important; 
-    background: none !important;
+    background: $primary-x-darker-bg !important;
   }
  
   *::-webkit-scrollbar-thumb {
-    background: $primary-x-darker-bg !important; 
+    background: $primary-hover  !important; 
     border-radius: 10px !important; 
     border: 2px solid transparent !important; 
   }
   
   *::-webkit-scrollbar-thumb:hover {
-    background: $primary-xx-darker-bg !important; 
+    background: $primary-hover-hover !important; 
   }
 
   //--------------------------------------------------------
   body {
     font-family: var(--q-font-family) !important;
+    overflow-y: scroll;
   }
 
   //-----------------------------------
@@ -110,6 +114,11 @@
   .rounded-corners-2{
     border-radius: 18px;
   }
+
+  .q-dialog__inner {
+    position: fixed !important;
+  }
+  
 
 //--------- for dropdown menu items --------------------
 .q-menu .q-item {
@@ -566,4 +575,9 @@ input[type="number"]::-webkit-outer-spin-button {
   padding-top: 4px;
   padding-bottom: 4px;
 
+}
+
+.qrcode-wrapper {
+  max-width: 400px;
+  margin: auto;
 }

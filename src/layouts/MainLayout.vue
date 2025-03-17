@@ -4,7 +4,7 @@
   <q-toolbar>
     <q-toolbar-title>
       <div class="paytaca-logo-con"></div>
-      <div class="kkb-title">KKB</div>
+      <div class="kkb-title">Paysplit</div>
     </q-toolbar-title>
 
     <q-btn flat dense class="toolbar-btn" label="Get Started" @click="getStartedDialog = !getStartedDialog" />
@@ -13,8 +13,18 @@
 
 <q-dialog v-model="getStartedDialog">
   <q-card class="floating-dialog">
-    <q-card-section>
-      
+    <q-card-section class="">
+      <qrcode-stream
+        @detect="onQRDecode"
+        @camera-on="onScannerInit"
+        @error="onCameraError">
+      </qrcode-stream>
+
+      <div v-if="scannedCode" class="q-mt-md">
+        <q-banner dense class="bg-green text-white">
+          Scanned QR Code: {{ scannedCode }}
+        </q-banner>
+      </div>
     </q-card-section>
     <q-btn class="proceed-btn float-btn text-capitalize" label="Request KKB" @click="showAddExpenseForm = true"/>
   </q-card>
@@ -200,9 +210,13 @@
 </template>
 
 <script>
+  import { QrcodeStream } from "vue-qrcode-reader";
+
   export default {
+    components: { QrcodeStream },
     data() {
       return {
+        scannedCode: null,
         getStartedDialog : false,
         showAddExpenseForm: false,
         showSplitExpenseForm: false,
@@ -234,6 +248,43 @@
       };
     },
     methods: {
+          // DESKTOP
+      onScannerInit () {
+        console.log('camera set up successfully')
+      },
+      onCameraError (error) {
+        const vm = this
+        console.log('error', error)
+        if (error.name === 'NotAllowedError') {
+          // user denied camera access permission
+          vm.error = vm.$t('CameraPermissionErrMsg1');
+        } else if (error.name === 'NotFoundError') {
+          // no suitable camera device installed
+          vm.error = vm.$t('CameraPermissionErrMsg2');
+        } else if (error.name === 'NotSupportedError') {
+          // page is not served over HTTPS (or localhost)
+          vm.error = vm.$t('CameraPermissionErrMsg3');
+        } else if (error.name === 'NotReadableError') {
+          // maybe camera is already in use
+          vm.error = vm.$t('CameraPermissionErrMsg4');
+        } else if (error.name === 'OverconstrainedError') {
+          vm.frontCamera = false;
+          // did you request the front camera although there is none?
+          vm.error = vm.$t('CameraPermissionErrMsg5');
+        } else if (error.name === 'StreamApiNotSupportedError') {
+          // browser seems to be lacking features
+          console.log(error)
+        } else {
+          vm.error = vm.$t('UnknownErrorOccurred') + ': ' + error.message;
+        }
+      },
+      async onQRDecode (content) {
+
+        if (content) {
+          this.scannedCode = content[0].rawValue;
+        }
+      },
+
       addItem() {
         this.items.push({ name: '', quantity: 1, price: 0.00001, filteredSuggestions: [] });
       },

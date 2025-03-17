@@ -42,6 +42,12 @@ export default defineConfig((ctx) => {
         browser: [ 'es2022', 'firefox115', 'chrome115', 'safari14' ],
         node: 'node20'
       },
+      vite: {
+        build: {
+          target: 'esnext', // or 'es2022'
+        },
+      },
+
 
       vueRouterMode: 'hash', // available values: 'hash', 'history'
       // vueRouterBase,

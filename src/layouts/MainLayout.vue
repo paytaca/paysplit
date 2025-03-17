@@ -12,17 +12,39 @@
 </q-header>
 
 <q-dialog v-model="getStartedDialog">
-  <q-card class="floating-dialog">
+  <q-card class="floating-dialog qr-q-card">
     <q-card-section class="qrcode-wrapper">
       <qrcode-stream
-        @detect="onQRDecode"
-        @camera-on="onScannerInit"
-        @error="onCameraError">
+          @detect="onQRDecode"
+          @camera-on="onScannerInit"
+          @error="onCameraError">
       </qrcode-stream>
 
-      <q-input v-model="scannedCode" dense outlined class="q-pa-sm"></q-input>
+      <div class="address-input-con">
+        <q-input v-model="bchAddress" class="custom-input payer-input" dense outlined ></q-input>
+        <q-btn dense flat @click="pasteAddress" class="paste-btn">
+          <q-icon name="fa-solid fa-paste" />
+        </q-btn>
+      </div>
     </q-card-section>
-    <q-btn class="proceed-btn float-btn text-capitalize" label="Request KKB" @click="showAddExpenseForm = true"/>
+
+
+    <!-- Remember Me Checkbox -->
+    <q-card-section class="q-remember-me">
+      <q-checkbox v-model="rememberMe" label="Remember Address" />
+    </q-card-section>
+
+    <!-- Request KKB Button -->
+    <q-card-section class="reqkkb-container">
+      <q-btn 
+        class="proceed-btn text-capitalize" 
+        label="Request KKB" 
+        @click="showAddExpenseForm = true" 
+        unelevated 
+        rounded 
+        color="primary"
+      />
+    </q-card-section>
   </q-card>
 </q-dialog>
 
@@ -175,15 +197,6 @@
             <q-btn label="Add Participant" icon="add" @click="addParticipant" class="q-mt-md full-width action-btn text-capitalize" />
           </div>
 
-          <!-- Placeholder for the third condition 
-          <div v-if="splitType === 'Split By Items'">
-        
-          </div>-->
-
-
-
-
-
         </q-card-section>
 
 
@@ -191,10 +204,27 @@
         <q-card-section style="padding-top: 0px; padding-bottom: 0px;">
           <q-card-actions align="right" style="padding-right: 0px;">
             <q-btn label="Return" class="cancel-btn text-capitalize" flat @click="showSplitExpenseForm = false; showAddExpenseForm = true;" />
-            <q-btn class="proceed-btn text-capitalize" label="Generate QR Codes" />
+            <q-btn class="proceed-btn text-capitalize" label="Generate QR Codes" @click="generateQRCodes()"/>
           </q-card-actions>
         </q-card-section>
 
+      </q-card>
+    </q-dialog>
+
+
+    <q-dialog v-model="showQRCodes" persistent>
+      <q-card class="q-pa-md kkb-forms">
+        <q-card-section>
+          <div class="text-h6">Payment QR Code</div>
+        </q-card-section>
+
+        <q-card-section class="q-pa-md flex flex-center">
+          <img v-if="qrCodes.length > 0" :src="qrCodes[0]" alt="Payment QR Code" class="qrcode-img">
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Close" color="primary" v-close-popup />
+        </q-card-actions>
       </q-card>
     </q-dialog>
 
@@ -207,19 +237,34 @@
 
 <script>
   import { QrcodeStream } from "vue-qrcode-reader";
+  //import crypto from "crypto"; // Built-in Node.js module
+  import * as secp256k1 from "secp256k1";
+  import bs58 from "bs58";
+  import cashaddr from "cashaddrjs";
+  import CryptoJS from "crypto-js";
+  import QRCode from "qrcode";
 
   export default {
     components: { QrcodeStream },
     data() {
       return {
-        scannedCode: null,
+        bchAddress: "",
+        rememberMe: false,
         getStartedDialog : false,
         showAddExpenseForm: false,
         showSplitExpenseForm: false,
+        showQRCodes: false,
         maxIntegerLength: 7,
         maxDecimalLength: 8,
         category: 'Food',
         participantCount: 2,
+        
+        paymentAmounts : [],
+        qrCodes: [],
+        privateKeyWIF:"",
+        publicKeyHex:"",
+        bitcoinCashAddress: "",
+
         participants: [
           { name: this.generateRandomName(), amount: 0 },
           { name: this.generateRandomName(), amount: 0 }
@@ -244,7 +289,15 @@
       };
     },
     methods: {
-          // DESKTOP
+      async pasteAddress(){
+          try {
+            const text = await navigator.clipboard.readText(); // Read clipboard content
+            console.log("Clipboard content:", text);
+            this.bchAddress = text;
+          } catch (err) {
+            console.error("Failed to read clipboard:", err);
+          }
+      },
       onScannerInit () {
         console.log('camera set up successfully')
       },
@@ -277,7 +330,7 @@
       async onQRDecode (content) {
 
         if (content) {
-          this.scannedCode = content[0].rawValue;
+          this.bchAddress = content[0].rawValue.split("?amount=")[0];
         }
       },
 
@@ -471,6 +524,160 @@
             }
         }
     },
+
+    generateQRCodes(){
+      this.qrCodes = [];
+      let amounts = [];
+      this.participants.forEach(payer => {
+        amounts.push(payer.amount);
+      });
+      console.log("Amounts:", amounts);
+      this.createQRCodes(amounts);
+      this.showQRCodes = true;
+    },
+
+
+
+
+
+
+
+    async sha256(data = '', encoding = 'utf8') {
+      let buffer;
+
+      if (data instanceof Uint8Array) {
+        buffer = data;
+      } else if (encoding === 'utf8') {
+        buffer = new TextEncoder().encode(data);
+      } else if (encoding === 'hex') {
+        buffer = this.hexToBin(data);
+      } else {
+        throw new Error('Unsupported encoding type');
+      }
+
+      // Use window.crypto.subtle explicitly
+      const hashBuffer = await window.crypto.subtle.digest('SHA-256', buffer);
+      return this.binToHex(new Uint8Array(hashBuffer));
+    },
+
+    
+    // Generates new private and public keys, WIF, and Bitcoin Cash address
+    async generateNewKeys() {
+      const privateKey = await this.generatePrivateKey();
+      this.privateKeyWIF = privateKey.wif;
+      this.publicKeyHex = privateKey.publicKey;
+      this.bitcoinCashAddress = privateKey.address;
+      this.generatePublicQRCodes();
+    },
+    
+    // Generates a private key, derives public key and Bitcoin Cash address
+    async generatePrivateKey() {
+      // Generate a 32-byte private key using browser crypto API
+      const privateKey = new Uint8Array(32);
+      window.crypto.getRandomValues(privateKey);
+
+      // Generate compressed public key
+      const publicKey = secp256k1.publicKeyCreate(privateKey, true);
+
+      const privateKeyHex = this.binToHex(privateKey);
+      const publicKeyHex = this.binToHex(publicKey);
+
+      const privateKeyHash = await this.sha256(privateKeyHex, 'hex');
+      const publicKeyHash = await this.sha256(publicKeyHex, 'hex');
+
+      const sha256Hash = await this.sha256(publicKeyHex, 'hex');
+      const ripemdHash = this.ripemd160(this.hexToBin(sha256Hash));
+      console.log("RIPEMD-160 Hash:", ripemdHash, "Length:", ripemdHash.length);
+      // Create WIF key
+      const extendedKey = new Uint8Array([0x80, ...privateKey, 0x01]);
+      const hashWif1 = await this.sha256(extendedKey, 'hex');
+      const hashWif2 = await this.sha256(this.hexToBin(hashWif1), 'hex');
+      const checksumWif = this.hexToBin(hashWif2).slice(0, 4);
+      const wifKey = new Uint8Array([...extendedKey, ...checksumWif]);
+      const finalWIF = this.binToBase58(wifKey);
+
+      return {
+        privateKey: privateKeyHex,
+        privateKeyHash,
+        publicKey: publicKeyHex,
+        publicKeyHash,
+        address: this.encodeCashAddress({
+          prefix: 'bitcoincash',
+          type: 'P2PKH',
+          payload: ripemdHash,
+        }),
+        wif: finalWIF
+      };
+    },
+
+
+    
+    
+    // Updates the public QR code with a payment amount
+    async generatePublicQRCodes() {
+    
+      for(const amount of this.paymentAmounts){
+          const cleanAddress = this.bitcoinCashAddress.replace(/^bitcoincash:/, '');
+          let qrDataPublic = `bitcoincash:${cleanAddress}`;
+          qrDataPublic += `?amount=${amount}`;
+          console.log("Qr sample: ",qrDataPublic);
+          try {
+              let qrcode1 = await QRCode.toDataURL(qrDataPublic, {
+              errorCorrectionLevel: 'L',
+              });
+              this.qrCodes.push(qrcode1);
+              //console.log(`New QR Code created for ${cleanAddress}`);
+          } catch (error) {
+              console.error(`Error generating QR code for ${cleanAddress}:`, error);
+              return;
+          }
+          
+      }
+    },
+    
+    async createQRCodes(amounts){
+        this.paymentAmounts = amounts;
+        this.generateNewKeys();
+        console.log("WIF:", this.privateKeyWIF);
+        console.log("Hex:", this.publicKeyHex);
+        console.log("QR Codes: ", this.qrCodes)
+    },
+
+
+        // Convert Uint8Array to Hex
+    binToHex(uint8Array) {
+      return Array.from(uint8Array)
+        .map(byte => byte.toString(16).padStart(2, '0'))
+        .join('');
+    },
+
+    // Convert Hex to Uint8Array
+    hexToBin(hex) {
+      return new Uint8Array(
+        hex.match(/.{1,2}/g).map(byte => parseInt(byte, 16))
+      );
+    },
+
+    // Convert Uint8Array to Base58 (if needed for WIF key)
+    binToBase58(uint8Array) {
+      return bs58.encode(uint8Array); // Requires 'bs58' library
+    },
+
+    ripemd160(buffer) {
+      return new Uint8Array(
+        CryptoJS.RIPEMD160(CryptoJS.enc.Hex.parse(this.binToHex(buffer)))
+          .toString(CryptoJS.enc.Hex)
+          .match(/.{1,2}/g)
+          .map(byte => parseInt(byte, 16))
+      );
+    },
+
+    
+    encodeCashAddress({ prefix, type, payload }) {
+      return cashaddr.encode(prefix, type.toUpperCase(), payload);
+    },
+
+
 
 
     }

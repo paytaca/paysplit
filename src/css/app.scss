@@ -478,7 +478,7 @@ input[type="number"]::-webkit-outer-spin-button {
   position: fixed;
   top: 54px; /* Aligns with header */
   right: 2px;
-  height: 100vh;
+  height: 400px;
   background-color: $primary-bgrey-bg !important;
   background-image: url('assets/bitcoin-logo-dark-transparent.png') !important;
   background-position: center;
@@ -486,6 +486,7 @@ input[type="number"]::-webkit-outer-spin-button {
   background-size: contain;
   box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
   border-radius: 0; /* Remove rounded edges */
+  overflow-x: hidden;
 }
 
 
@@ -578,6 +579,9 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 .qrcode-wrapper {
-  max-width: 400px;
+  //background-color: red;
+  max-width: 260px;
   margin: auto;
+  box-sizing: border-box;
+  overflow: hidden;
 }

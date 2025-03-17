@@ -13,18 +13,14 @@
 
 <q-dialog v-model="getStartedDialog">
   <q-card class="floating-dialog">
-    <q-card-section class="">
+    <q-card-section class="qrcode-wrapper">
       <qrcode-stream
         @detect="onQRDecode"
         @camera-on="onScannerInit"
         @error="onCameraError">
       </qrcode-stream>
 
-      <div v-if="scannedCode" class="q-mt-md">
-        <q-banner dense class="bg-green text-white">
-          Scanned QR Code: {{ scannedCode }}
-        </q-banner>
-      </div>
+      <q-input v-model="scannedCode" dense outlined class="q-pa-sm"></q-input>
     </q-card-section>
     <q-btn class="proceed-btn float-btn text-capitalize" label="Request KKB" @click="showAddExpenseForm = true"/>
   </q-card>

@@ -6,6 +6,9 @@
 - BCH address saving through localStorage so users need not to fill-in their bch address next session.
 - Changed backdrop/bacground color for the 'main-function' dialogs to light-reddish-pink.
 
+## Next targets:
+  - New layout for generated qr-codes display dialog.
+
 ## Install the dependencies
 ```bash
 npm install

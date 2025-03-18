@@ -1,28 +1,20 @@
 
-# Paytaca KKB (paytaca-kkb)
+# Paytaca Paysplit Project (Recent Changes)
 
-Paytaca KKB project
+- Modified UIs for QR-code Scanner dialog. 'Clear and Re-scan' icon button was added.
+- Auto-pause and auto-resume qrcode-stream camera when the bch address is filled and emptied.
+- BCH address saving through localStorage so users need not to fill-in their bch address next session.
+- Changed backdrop/bacground color for the 'main-function' dialogs to light-reddish-pink.
 
 ## Install the dependencies
 ```bash
-yarn
-# or
 npm install
 ```
 
 ### Start the app in development mode (hot-code reloading, error reporting, etc.)
 ```bash
-quasar dev
+npx quasar dev
 ```
-
-
-### Lint the files
-```bash
-yarn lint
-# or
-npm run lint
-```
-
 
 ### Build the app for production
 ```bash

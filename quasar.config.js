@@ -48,6 +48,13 @@ export default defineConfig((ctx) => {
         },
       },
 
+      /*meta: {
+        title: 'Paytaca Payspilt',
+        meta: [
+          { name: 'viewport', content: 'width=600, initial-scale=1' }
+        ]
+      },*/
+
 
       vueRouterMode: 'hash', // available values: 'hash', 'history'
       // vueRouterBase,

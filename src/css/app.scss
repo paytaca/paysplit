@@ -35,12 +35,6 @@
     font-family: var(--q-font-family) !important;
     overflow-y: scroll;
   }
-
-  #invisible-div{
-    display: none;
-    background-image: url('assets/form-bg-1.png');
-  }
-
   //-----------------------------------
 
   .paytaca-logo-con{
@@ -483,7 +477,7 @@ input[type="number"]::-webkit-outer-spin-button {
   position: fixed;
   top: 54px; /* Aligns with header */
   right: 2px;
-  height: 410px;
+  height: fit-content;
   background-color: $primary-bgrey-bg !important;
   background-image: url('assets/bitcoin-logo-dark-transparent.png') !important;
   background-position: center;
@@ -590,17 +584,26 @@ input[type="number"]::-webkit-outer-spin-button {
   margin: auto;
   box-sizing: border-box;
   overflow: hidden;
-  margin-top: 20px;
+  margin-top: 10px;
 }
 
-
-/* Box-style camera frame */
 .q-card__section div video{
-    border-radius: 8px; /* Rounded edges instead of full circle */
+    border-radius: 8px;
     overflow: hidden;
     box-sizing: border-box;
     padding: 0;
     border: 2px solid $primary-headers-bg;
+    max-height: 200px;
+}
+
+
+#qrcode-stream-pause-frame{
+  border-radius: 8px;
+  overflow: hidden;
+  box-sizing: border-box;
+  padding: 0;
+  border: 2px solid $primary-headers-bg;
+  max-height: 200px; 
 }
 
 .address-input-con{
@@ -610,8 +613,12 @@ input[type="number"]::-webkit-outer-spin-button {
   padding-top: 15px;
   transform-origin: left;
   transform: scale(0.8);
+  label{
+    div .q-field__control{
+      border: 1px solid $primary-imp-action-bg;
+    }
+  } 
 }
-/* Style the input field */
 .address-input {
   background-color: none !important;
   flex: 1; 
@@ -620,7 +627,6 @@ input[type="number"]::-webkit-outer-spin-button {
 
 }
 
-/* Style the Paste button */
 .paste-btn {
   height: 40px;
   width: 40px;
@@ -634,7 +640,6 @@ input[type="number"]::-webkit-outer-spin-button {
   color: $primary-action-bg;
 }
 
-/* Center the "Remember Me" text properly */
 .q-remember-me {
   display: flex;
   justify-content: center;
@@ -644,13 +649,13 @@ input[type="number"]::-webkit-outer-spin-button {
   transform: translateX(-6px);
 }
 
-
-/* Remove scrollbar while keeping content fit */
 .qr-q-card {
-  max-height: 100vh; /* Ensures no unnecessary scrolling */
+  max-height: 100vh; 
   overflow: hidden;
 }
 
 .reqkkb-container{
   text-align: center;
 }
+
+

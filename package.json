@@ -1,8 +1,8 @@
 {
-  "name": "paytaca-kkb",
+  "name": "paytaca-paysplit",
   "version": "0.0.1",
-  "description": "Paytaca KKB project",
-  "productName": "Paytaca KKB",
+  "description": "Paytaca Paysplit Project",
+  "productName": "Paytaca Paysplit",
   "author": "Charlie Odon & Jhan Mike Pagatpat",
   "type": "module",
   "private": true,

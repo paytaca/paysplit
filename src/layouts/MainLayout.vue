@@ -7,7 +7,7 @@
       <div class="kkb-title">Paysplit</div>
     </q-toolbar-title>
 
-    <q-btn flat dense class="toolbar-btn" label="Get Started" @click="getStartedDialog = !getStartedDialog; retrieveAddress();" />
+    <q-btn flat dense class="toolbar-btn" label="Get Started" @click="getStarted()" />
   </q-toolbar>
 </q-header>
 
@@ -232,7 +232,6 @@
     <q-page-container>
       <router-view />
     </q-page-container>
-    <div id="invisible-div"> </div>
   </q-layout>
 </template>
 
@@ -290,8 +289,14 @@
         },
       };
     },
-
+    mounted(){
+      window.getStarted = this.getStarted;
+    },
     methods: {
+      getStarted(){
+        this.getStartedDialog = !this.getStartedDialog; 
+        this.retrieveAddress();
+      },
       async pasteAddress(){
           try {
             const text = await navigator.clipboard.readText(); // Read clipboard content
@@ -362,6 +367,7 @@
         console.log('Saved Address:', savedadd);
         if(savedadd){
           this.bchAddress = savedadd;
+          this.pauseCam = true;
         }
       },
 

@@ -212,21 +212,45 @@
     </q-dialog>
 
 
-    <q-dialog v-model="showQRCodes" persistent>
-      <q-card class="q-pa-md kkb-forms">
-        <q-card-section>
-          <div class="text-h6">Payment QR Code</div>
-        </q-card-section>
+      <q-dialog v-model="showQRCodes" persistent>
+    <q-card class="q-pa-md kkb-forms qrcode-form">
+      <q-card-section>
+        <div class="text-h6">Payment QR Code</div>
+      </q-card-section>
 
-        <q-card-section class="q-pa-md flex flex-center">
-          <img v-if="qrCodes.length > 0" :src="qrCodes[0]" alt="Payment QR Code" class="qrcode-img">
-        </q-card-section>
+      <q-card-section class="q-pa-md flex justify-between items-center">
+        <!-- Left Icon Button (Maximized) -->
+        <div class="left-container">
+          <q-btn flat round  class="stretch-y-arrow" icon="fa-solid fa-angle-left" size="xl" />
+        </div>
 
-        <q-card-actions align="right">
-          <q-btn flat label="Close" color="primary" v-close-popup />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
+        <!-- Center Container -->
+        <div class="center-container flex flex-column items-center">
+          <img
+            v-if="qrCodes.length > 0"
+            :src="qrCodes[0]"
+            alt="Payment QR Code"
+            class="qrcode-img-large"
+          />
+          <!-- Payer Name & Amount under QR Code -->
+          <div class="text-center q-mt-md text-h6">
+            <div><span class="text-bold">Payer: </span>JhanMike</div>
+            <div><span class="text-bold">Amount: </span>0.000005 BCH</div>
+          </div>
+        </div>
+
+        <!-- Right Icon Button (Maximized) -->
+        <div class="right-container">
+          <q-btn flat round  class="stretch-y-arrow" icon="fa-solid fa-angle-right" size="xl" />
+        </div>
+      </q-card-section>
+
+      <q-card-actions align="right">
+        <q-btn flat label="Close" color="primary" v-close-popup />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
+
 
 
     <q-page-container>

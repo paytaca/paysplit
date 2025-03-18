@@ -24,6 +24,7 @@
         <q-input v-model="bchAddress" class="custom-input payer-input" dense outlined ></q-input>
         <q-btn dense flat @click="pasteAddress" class="paste-btn">
           <q-icon name="fa-solid fa-paste" />
+          <q-tooltip>Paste Paytaca Wallet Address</q-tooltip>
         </q-btn>
       </div>
     </q-card-section>
@@ -38,8 +39,8 @@
     <q-card-section class="reqkkb-container">
       <q-btn 
         class="proceed-btn text-capitalize" 
-        label="Request KKB" 
-        @click="showAddExpenseForm = true" 
+        label="Request Paysplit" 
+        @click="showAddExpenseForm = true; saveInitiatorAddress();" 
         unelevated 
         rounded 
         color="primary"
@@ -237,7 +238,6 @@
 
 <script>
   import { QrcodeStream } from "vue-qrcode-reader";
-  //import crypto from "crypto"; // Built-in Node.js module
   import * as secp256k1 from "secp256k1";
   import bs58 from "bs58";
   import cashaddr from "cashaddrjs";
@@ -288,6 +288,12 @@
         },
       };
     },
+    mounted(){
+        const savedadd = localStorage.getItem('bchpadd');
+        if(savedadd){
+          this.bchAddress = savedadd;
+        }
+    },
     methods: {
       async pasteAddress(){
           try {
@@ -296,6 +302,14 @@
             this.bchAddress = text;
           } catch (err) {
             console.error("Failed to read clipboard:", err);
+          }
+      },
+      saveInitiatorAddress(){
+          if(this.rememberMe){
+            localStorage.setItem('bchpadd', this.bchAddress);
+          }
+          else{
+            localStorage.removeItem('bchpadd');
           }
       },
       onScannerInit () {

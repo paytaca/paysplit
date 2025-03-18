@@ -36,6 +36,11 @@
     overflow-y: scroll;
   }
 
+  #invisible-div{
+    display: none;
+    background-image: url('assets/form-bg-1.png');
+  }
+
   //-----------------------------------
 
   .paytaca-logo-con{
@@ -409,7 +414,7 @@ input[type="number"]::-webkit-outer-spin-button {
   //-------------------for add expense q-card------------
   .kkb-forms{
     min-width: 700px; 
-    background-color: $primary-dark-bg; 
+    background-color: $primary-hover-hover; 
     background-image: url('assets/form-bg-1.png');
     background-repeat: no-repeat;
     background-size: cover;
@@ -478,10 +483,11 @@ input[type="number"]::-webkit-outer-spin-button {
   position: fixed;
   top: 54px; /* Aligns with header */
   right: 2px;
-  height: 400px;
+  height: 410px;
   background-color: $primary-bgrey-bg !important;
   background-image: url('assets/bitcoin-logo-dark-transparent.png') !important;
   background-position: center;
+  background-position-y: 80px;
   background-repeat: no-repeat;
   background-size: contain;
   box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);

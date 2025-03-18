@@ -7,7 +7,7 @@
       <div class="kkb-title">Paysplit</div>
     </q-toolbar-title>
 
-    <q-btn flat dense class="toolbar-btn" label="Get Started" @click="getStartedDialog = !getStartedDialog" />
+    <q-btn flat dense class="toolbar-btn" label="Get Started" @click="getStartedDialog = !getStartedDialog; retrieveAddress();" />
   </q-toolbar>
 </q-header>
 
@@ -17,30 +17,29 @@
       <qrcode-stream
           @detect="onQRDecode"
           @camera-on="onScannerInit"
-          @error="onCameraError">
+          @error="onCameraError"
+          :paused="pauseCam">
       </qrcode-stream>
 
       <div class="address-input-con">
-        <q-input v-model="bchAddress" class="custom-input payer-input" dense outlined ></q-input>
+        <q-input v-model="bchAddress" class="custom-input payer-input" @update:model-value="onManualAdressInput()" label="Your public wallet address" dense outlined ></q-input>
         <q-btn dense flat @click="pasteAddress" class="paste-btn">
           <q-icon name="fa-solid fa-paste" />
           <q-tooltip>Paste Paytaca Wallet Address</q-tooltip>
         </q-btn>
+        <q-btn dense flat @click="clearAddress" class="paste-btn">
+          <q-icon name="fa-solid fa-refresh" />
+          <q-tooltip>Clear Address and Re-scan</q-tooltip>
+        </q-btn>
       </div>
     </q-card-section>
 
-
-    <!-- Remember Me Checkbox -->
-    <q-card-section class="q-remember-me">
-      <q-checkbox v-model="rememberMe" label="Remember Address" />
-    </q-card-section>
-
-    <!-- Request KKB Button -->
     <q-card-section class="reqkkb-container">
+      <q-checkbox v-model="rememberMe" class="q-remember-me" label="Remember Address" checked/>
       <q-btn 
         class="proceed-btn text-capitalize" 
         label="Request Paysplit" 
-        @click="showAddExpenseForm = true; saveInitiatorAddress();" 
+        @click="checkAddress()" 
         unelevated 
         rounded 
         color="primary"
@@ -54,7 +53,7 @@
     <q-dialog v-model="showAddExpenseForm" persistent>
       <q-card class="q-pa-md kkb-forms">
         <q-card-section>
-          <div class="text-h6 text-bold">Add KKB Expenses</div>
+          <div class="text-h6 text-bold">Add Expenses</div>
         </q-card-section>
         <q-card-section class="q-gutter-md" style="padding-bottom: 6px;">
           <div class="custom-field">
@@ -233,6 +232,7 @@
     <q-page-container>
       <router-view />
     </q-page-container>
+    <div id="invisible-div"> </div>
   </q-layout>
 </template>
 
@@ -249,7 +249,7 @@
     data() {
       return {
         bchAddress: "",
-        rememberMe: false,
+        rememberMe: true,
         getStartedDialog : false,
         showAddExpenseForm: false,
         showSplitExpenseForm: false,
@@ -258,7 +258,9 @@
         maxDecimalLength: 8,
         category: 'Food',
         participantCount: 2,
+        pauseCam: false,
         
+        validAddress: false,
         paymentAmounts : [],
         qrCodes: [],
         privateKeyWIF:"",
@@ -288,18 +290,14 @@
         },
       };
     },
-    mounted(){
-        const savedadd = localStorage.getItem('bchpadd');
-        if(savedadd){
-          this.bchAddress = savedadd;
-        }
-    },
+
     methods: {
       async pasteAddress(){
           try {
             const text = await navigator.clipboard.readText(); // Read clipboard content
             console.log("Clipboard content:", text);
             this.bchAddress = text;
+            this.pauseCam = true;
           } catch (err) {
             console.error("Failed to read clipboard:", err);
           }
@@ -307,11 +305,66 @@
       saveInitiatorAddress(){
           if(this.rememberMe){
             localStorage.setItem('bchpadd', this.bchAddress);
+            console.log('Saved Address:', localStorage.getItem('bchpadd'));
           }
           else{
             localStorage.removeItem('bchpadd');
+            console.log('Saved Address removed:');
           }
       },
+
+      checkAddress(){
+          if(this.bchAddress===''){
+            this.$q.notify({
+              type: 'negative',
+              message: 'Please scan your Paytaca wallet public address QR code or paste it manually.',
+              position: 'top'
+            });
+            this.pauseCam = false;
+          }
+          else{
+            const cleanAdd = this.bchAddress.split(':')[1];
+            const pref =  this.bchAddress.split(':')[0];
+            console.log("Clean Address: ", cleanAdd);
+            if((pref === 'bitcoincash') && cleanAdd && (cleanAdd.length === 42) && !(/[^a-zA-Z0-9]/.test(cleanAdd)) && (cleanAdd.charAt(0) === 'q')){
+              this.validAddress = true;
+              this.showAddExpenseForm = true;
+              this.saveInitiatorAddress();
+            }
+            else{
+              this.validAddress = false;
+              this.$q.notify({
+                type: 'negative',
+                message: 'Paytaca wallet address is invalid!',
+                position: 'top'
+              });
+              this.clearAddress();
+            }         
+          }  
+      },
+
+      clearAddress(){
+        this.bchAddress = '';
+        this.pauseCam = false;
+      },
+
+      onManualAdressInput(){
+        if(this.bchAddress){
+          this.pauseCam = true;
+        }
+        else{
+          this.pauseCam = false;
+        }
+      },
+
+      retrieveAddress(){
+        const savedadd = localStorage.getItem('bchpadd');
+        console.log('Saved Address:', savedadd);
+        if(savedadd){
+          this.bchAddress = savedadd;
+        }
+      },
+
       onScannerInit () {
         console.log('camera set up successfully')
       },
@@ -345,6 +398,7 @@
 
         if (content) {
           this.bchAddress = content[0].rawValue.split("?amount=")[0];
+          this.pauseCam = true;
         }
       },
 
@@ -443,11 +497,9 @@
       addParticipant() {
           this.participantCount += 1;
           let highestPayer = this.getHighestPayer();
-          
           if (highestPayer && highestPayer.amount > 0.00001) {
               let newParticipantAmount = 0.00001;
               let updatedHighestAmount = this.formatPrice(highestPayer.amount - newParticipantAmount);
-              
               if (updatedHighestAmount < 0) {
                   newParticipantAmount += updatedHighestAmount;
                   updatedHighestAmount = 0;
@@ -512,29 +564,19 @@
 
       },
       adjustAmountsIfMismatch(excludePayer = null) {
-        console.log('Payer:', excludePayer ? excludePayer.name : "None");
-        
         let totalAmount = this.getTotalPrice();
         let totalAssigned = this.participants.reduce((sum, p) => sum + p.amount, 0);
         let difference = totalAmount - totalAssigned;
 
         if (difference !== 0) {
-            // Filter out the excludePayer if it's not null
             let filteredParticipants = excludePayer 
                 ? this.participants.filter(p => p.name !== excludePayer.name) 
                 : this.participants;
-
-            // Find the maximum amount from the remaining participants
             let maxAmount = Math.max(...filteredParticipants.map(p => p.amount));
-
-            // Get the highest payers from the remaining participants
             let highestPayers = filteredParticipants.filter(p => p.amount === maxAmount);
-            console.log('Highest Payers:', highestPayers.map(p => p.name));
-
             if (highestPayers.length > 0) {
-                let payerToAdjust = highestPayers[0]; // Pick the first highest payer
+                let payerToAdjust = highestPayers[0]; 
                 payerToAdjust.amount = this.formatPrice(payerToAdjust.amount + difference);
-                console.log(`Adjusted ${payerToAdjust.name}'s amount by ${difference}, new amount: ${payerToAdjust.amount}`);
             }
         }
     },
@@ -545,7 +587,6 @@
       this.participants.forEach(payer => {
         amounts.push(payer.amount);
       });
-      console.log("Amounts:", amounts);
       this.createQRCodes(amounts);
       this.showQRCodes = true;
     },

@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <!-- White background -->
+  <rect width="800" height="600" fill="TRANSPARENT" />
+
+  <!-- Large Bubble 1 (Outside Top) -->
+  <circle cx="-100" cy="-50" r="100" fill="#87CEEB" fill-opacity="0.18">
+    <animateMotion dur="20s" repeatCount="indefinite"
+      path="M 0 0 C 300 150 500 -50 780 200" />
+  </circle>
+
+  <!-- Large Bubble 2 (Outside Right) -->
+  <circle cx="900" cy="-30" r="80" fill="#87CEEB" fill-opacity="0.45">
+    <animateMotion dur="18s" repeatCount="indefinite"
+      path="M 0 0 C -200 100 -600 -80 -790 150" />
+  </circle>
+
+  <!-- Large Bubble 3 (Outside Bottom) -->
+  <circle cx="400" cy="650" r="90" fill="#87CEEB" fill-opacity="0.15">
+    <animateMotion dur="22s" repeatCount="indefinite"
+      path="M 0 0 C 250 -50 450 200 760 100" />
+  </circle>
+
+  <!-- Bubble 1 (From Left) -->
+  <circle cx="-50" cy="90" r="30" fill="#87CEEB" fill-opacity="0.80">
+    <animateMotion dur="10s" repeatCount="indefinite"
+      path="M 0 0 C 200 -200 600 200 770 0" />
+  </circle>
+
+  <!-- Bubble 2 (From Bottom) -->
+  <circle cx="50" cy="700" r="20" fill="#87CEEB" fill-opacity="0.4">
+    <animateMotion dur="12s" repeatCount="indefinite"
+      path="M 0 0 C 150 -100 550 -100 750 0" />
+  </circle>
+
+  <!-- Bubble 3 (From Right) -->
+  <circle cx="900" cy="450" r="60" fill="#87CEEB" fill-opacity="0.25">
+    <animateMotion dur="14s" repeatCount="indefinite"
+      path="M 0 0 C -400 -150 -350 -100 -250 0" />
+  </circle>
+
+  <!-- Bubble 4 (From Bottom Left) -->
+  <circle cx="-30" cy="650" r="40" fill="#87CEEB" fill-opacity="0.3">
+    <animateMotion dur="16s" repeatCount="indefinite"
+      path="M 0 0 C 100 -250 500 50 780 200" />
+  </circle>
+
+  <!-- Bubble 5 (From Bottom Right) -->
+  <circle cx="850" cy="700" r="25" fill="#87CEEB" fill-opacity="0.78">
+    <animateMotion dur="9s" repeatCount="indefinite"
+      path="M 0 0 C -200 -50 -600 100 -750 50" />
+  </circle>
+
+  <!-- Bubble 6 (From Left) -->
+  <circle cx="-40" cy="400" r="35" fill="#87CEEB" fill-opacity="0.25">
+    <animateMotion dur="11s" repeatCount="indefinite"
+      path="M 0 0 C 250 -100 400 200 720 0" />
+  </circle>
+
+  <!-- Bubble 7 (From Right) -->
+  <circle cx="900" cy="350" r="50" fill="#87CEEB" fill-opacity="0.15">
+    <animateMotion dur="18s" repeatCount="indefinite"
+      path="M 0 0 C -300 50 -500 -50 -790 150" />
+  </circle>
+
+  <!-- Bubble 8 (From Top Left) -->
+  <circle cx="-60" cy="-30" r="15" fill="#87CEEB" fill-opacity="0.55">
+    <animateMotion dur="13s" repeatCount="indefinite"
+      path="M 0 0 C 180 200 580 100 760 220" />
+  </circle>
+
+    <!-- Bubble 8 (From Top Left) -->
+  <circle cx="-50" cy="-20" r="18" fill="#87CEEB" fill-opacity="0.35">
+    <animateMotion dur="13s" repeatCount="indefinite"
+      path="M 0 0 C 2500 200 780 -100 360 20" />
+  </circle>
+
+</svg>

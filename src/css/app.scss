@@ -197,14 +197,17 @@ input[type="number"]::-webkit-outer-spin-button {
 
 /* ------ for custom unit label of price fields ---- */
 .bch-unit {
-    font-size: x-small;
+    font-size: small;
     font-weight: bold;
-    margin-right: -1px;
+    margin-right: -4px;
     color: darkgoldenrod;
     box-sizing: border-box;
   }
   
-
+.basic-mode-amount-unit{
+    margin-right: 30px !important;
+    font-size: small !important;
+}
 
 /*------------- contains custom label and input field -----*/
   .custom-field {
@@ -412,18 +415,19 @@ input[type="number"]::-webkit-outer-spin-button {
 
   .q-menu.q-position-engine.scroll{
     max-height: 180px ;
-    background-color: $primary-bgrey-bg;
+    background-color: $dropdown-bg;
   }
 
   //-------------------for add expense q-card------------
   .kkb-forms{
     min-width: 700px; 
     //background-color: $primary-hover-hover; 
-    background-color: #5c7379;
-    //background-image: url('assets/form-bg-1.png');
+    background-color: $dialog-bg-color;
+    background-image: url('assets/dialog-card-bg.svg');
     background-repeat: no-repeat;
     background-size: cover;
     max-width: 700px; 
+    max-height: 700px !important;
     overflow-y: hidden; 
     transform: scale(0.8); 
     border-radius: 10px; 
@@ -434,7 +438,19 @@ input[type="number"]::-webkit-outer-spin-button {
     .split-expense-form-top{
       margin-bottom: 20px !important;
     }
+
+    transform-origin: center;
+    transform: scale(0.9);
   }
+
+//----------for confirm dialog -------
+.confirm-dialog{
+  background-color: $dialog-bg-lighter-color;
+
+  div button span span{
+    color: rgb(105, 18, 18);
+  }
+}
 //--------------------------------------
   .action-btn{
     background-color: $primary-action-bg;
@@ -495,8 +511,8 @@ input[type="number"]::-webkit-outer-spin-button {
   top: 54px; /* Aligns with header */
   right: 2px;
   height: fit-content;
-  background-color: $primary-bgrey-bg !important;
-  background-image: url('assets/bitcoin-logo-dark-transparent.png') !important;
+  background-color: $dialog-bg-color !important;
+  //background-image: url('assets/bitcoin-logo-dark-transparent.png') !important;
   background-position: center;
   background-position-y: 80px;
   background-repeat: no-repeat;
@@ -504,6 +520,9 @@ input[type="number"]::-webkit-outer-spin-button {
   box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
   border-radius: 0; /* Remove rounded edges */
   overflow-x: hidden;
+
+  transform-origin: top right;
+  transform: scale(1.2);
 }
 
 
@@ -664,6 +683,7 @@ input[type="number"]::-webkit-outer-spin-button {
   padding: 10px 0;
   color: $input-text-grey;
   transform: translateX(-6px);
+  font-size: smaller;
 }
 
 .qr-q-card {
@@ -673,6 +693,9 @@ input[type="number"]::-webkit-outer-spin-button {
 
 .reqkkb-container{
   text-align: center;
+  .q-btn span span{
+    font-size: small;
+  }
 }
 
 /*------------------------------------------------------------------------------------*/

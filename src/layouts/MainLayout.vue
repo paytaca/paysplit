@@ -54,7 +54,7 @@
       <q-card class="q-pa-md kkb-forms">
         <q-card-section class="add-expense-form-top-sec">
           <div class="text-h6 text-bold">Add Expenses</div>
-          <q-checkbox v-model="basicMode" class="basic-mode-toggle" @update:model-value="onUpdateMode()" label="Basic Mode" checked/>
+          <q-checkbox v-model="basicMode" class="basic-mode-toggle" @update:model-value="onUpdateMode()" label="Quick Mode" checked/>
         </q-card-section>
         <q-card-section class="q-gutter-md" style="padding-bottom: 6px;">
           <div class="custom-field">
@@ -68,7 +68,7 @@
             <div class="item-name-header th-name">Item Name</div>
             <div class="field-group">
               <div class="quantity-header text-center th-name">Quantity</div>
-              <div class="price-header text-center th-name">Price (BCH)</div>
+              <div class="price-header text-center th-name">Price (PHP)</div>
               <div class="actions-header text-center"></div>
             </div>
           </div>
@@ -120,7 +120,7 @@
       <q-card  class="q-pa-md kkb-forms split-expense-q-card">
         <q-card-section class="split-expense-form-top">
           <div class="text-h6 text-bold">Split KKB Expenses</div>
-          <q-checkbox v-model="basicMode" class="basic-mode-toggle" @update:model-value="onUpdateMode()" label="Basic Mode" checked/>
+          <q-checkbox v-model="basicMode" class="basic-mode-toggle" @update:model-value="onUpdateMode()" label="Quick Mode" checked/>
         </q-card-section>
         
         <q-card-section class="q-gutter-md" style="padding-bottom: 6px;">
@@ -129,7 +129,7 @@
               <div class="custom-label">Amount To Split</div>
               <q-input v-model.number="amountToSplit" type="number" dense outlined class="custom-input c-br-1" min="2" @update:model-value="onSetTotalAmount()">
                 <template v-slot:append>
-                  <span class="bch-unit">PHP</span>
+                  <span class="bch-unit basic-mode-amount-unit">PHP</span>
                   <div class="custom-arrows">
                     <q-btn dense flat icon="keyboard_arrow_up" @click="amountToSplit = Math.min(9999, amountToSplit + 100)" />
                     <q-btn dense flat icon="keyboard_arrow_down" @click="amountToSplit = Math.max(1, amountToSplit - 100)" />
@@ -152,15 +152,15 @@
                 <q-item v-for="(item, index) in items" :key="index" class="q-pa-none item-tally-row">
                     <span class="field-text" style="min-width: 230px;">{{item.name}}  </span>
                     <span class="field-text" style="min-width: 60px; text-align: right;">x {{ item.quantity }}</span>
-                    <span class="field-text" style="min-width: 150px;text-align: right;">{{ item.price }} <b style="color: darkgoldenrod;">BCH</b></span>
-                    <span class="field-text" style="min-width: 160px; text-align: right;">{{ formatPrice(item.quantity * item.price) }} <b style="color: darkgoldenrod;">BCH</b></span>
+                    <span class="field-text" style="min-width: 150px;text-align: right;">{{ item.price }} <b style="color: darkgoldenrod;">PHP</b></span>
+                    <span class="field-text" style="min-width: 160px; text-align: right;">{{ formatPrice(item.quantity * item.price) }} <b style="color: darkgoldenrod;">PHP</b></span>
                 </q-item>
               </q-list>
             </div>
             <div class="text-bold footer-row">
               <q-item class="q-pa-none" style="min-height: 20px; box-sizing:border-box; position: sticky; bottom: 0;">
                 <span style="min-width: 440px;text-align: right;">Total Amount: </span>
-                <span class="field-text" style="min-width: 160px; text-align: right; padding-right: 2px;">{{this.amountToSplit}} <b style="color: darkgoldenrod;">BCH</b></span>
+                <span class="field-text" style="min-width: 160px; text-align: right; padding-right: 2px;">{{this.getTotalPrice()}} <b style="color: darkgoldenrod;">PHP</b></span>
               </q-item>
             </div>
           </div>
@@ -198,7 +198,7 @@
                         <q-input v-model.number="payer.amount" type="number" dense outlined class="custom-input payer-amount"
                                 :max="getMaxAmount()" @update:model-value="adjustAmountsIfMismatch(payer)" >
                                 <template v-slot:append>
-                                  <span class="bch-unit">BCH</span>
+                                  <span class="bch-unit">PHP</span>
                                   <div class="custom-arrows">
                                     <q-btn dense flat icon="keyboard_arrow_up" @click="increaseAmount(payer)" />
                                     <q-btn dense flat icon="keyboard_arrow_down" @click="decreaseAmount(payer)" />
@@ -222,7 +222,7 @@
         <q-card-section style="padding-top: 0px; padding-bottom: 0px;">
           <q-card-actions align="right" style="padding-right: 0px;">
             <q-btn label="Return" class="cancel-btn text-capitalize" flat @click="if(!basicMode) {showSplitExpenseForm = false; addExpenseFormVisible = true; } else{ showSplitExpenseForm = false;}" />
-            <q-btn class="proceed-btn text-capitalize" label="Generate QR Codes" @click="generateQRCodes()"/>
+            <q-btn class="proceed-btn text-capitalize" label="Generate QR Codes" @click="confirmGenerate()"/>
           </q-card-actions>
         </q-card-section>
 
@@ -264,7 +264,7 @@
         <!-- Payer Name & Amount under QR Code -->
         <div v-if="participants.length > 0" class="text-center q-mt-md text-h6">
           <div><span class="text-bold">Name: </span><span>{{ participantsQRPairs[currentQRCodeIndex]?.name}}</span></div>
-          <div><span class="text-bold">Amount: </span>{{ participantsQRPairs[currentQRCodeIndex]?.amount}} <span>BCH</span></div>
+          <div><span class="text-bold">Amount: </span>{{ participantsQRPairs[currentQRCodeIndex]?.amount}} <span>PHP</span></div>
         </div>
       </div>
 
@@ -315,7 +315,7 @@
         showSplitExpenseForm: false,
         showQRCodes: false,
         maxIntegerLength: 7,
-        maxDecimalLength: 8,
+        maxDecimalLength: 2,
         category: 'Food',
         participantCount: 2,
         pauseCam: false,
@@ -333,7 +333,7 @@
         splitType: 'Split Equally',
         splitTypes: ['Split Equally',  'Split By Amount'], //'Split By Items',
         items: [],
-        amountToSplit: 0,
+        amountToSplit: 1,
         categories: ['Food', 'Entertainment', 'Family', 'Friends', 'Activities', 'Gift', 'Shopping', 'Transportation', 'Travel', 'Utilities', 'Others'],
         itemSuggestions: {
           Food : [ "Rice", "Bread", "Milk", "Eggs", "Meat", "Fish", "Vegetables", "Fruits", "Snacks", "Soda", "Juice", "Coffee", "Tea", "Beer", "Wine", "Fast Food", "Barbeque", "Chicken Meat", "Spagetti", "Pizza", "Burger", "Pasta", "Noodles", "Yogurt", "Cheese", "Oatmeal", "Cereal", "Condiments", "Ketsup", "Sauce", "Spices", "Cooking Oil", "Frozen Meals", "Deli Meats", "Baked Goods", "Cookies", "Cake",  "Donuts", "Ice Cream", "Smoothies", "Protein Powder", "Energy Drinks", "Specialty Sauces", "Ethnic Cuisine Ingredients", "Meal Delivery Service", "Restaurant Takeout", "Prepared Salads", "Seafood (Shellfish, etc.)"],
@@ -380,7 +380,11 @@
       saveInitiatorAddress(){
           if(this.rememberMe){
             localStorage.setItem('bchpadd', this.bchAddress);
-            //console.log('Saved Address:', localStorage.getItem('bchpadd'));
+            this.$q.notify({
+              type: 'positive',
+              message: 'Public address saved!',
+              position: 'top'
+            });
           }
           else{
             localStorage.removeItem('bchpadd');
@@ -405,6 +409,7 @@
               this.validAddress = true;
               this.showAddExpenseForm();
               this.saveInitiatorAddress();
+              this.getStartedDialog = !this.getStartedDialog;
             }
             else{
               this.validAddress = false;
@@ -426,6 +431,7 @@
         else{
           this.addExpenseFormVisible = true;
         }
+        this.resetParticipants();
       },
 
       onSetTotalAmount(){
@@ -433,6 +439,7 @@
             this.items = [];
             this.items.push({ name: 'Item Bundle', quantity: 1, price: this.amountToSplit, filteredSuggestions: [] });
           }
+          this.resetParticipants();
       },
 
       onUpdateMode(){
@@ -560,33 +567,35 @@
         this.resetParticipants();
       },
 
-      calcTotalPrice(){
+      getTotalPrice(){
+        if(this.basicMode){
+          return this.amountToSplit;
+        }
         let total = 0;
         this.items.forEach(item => {
             total += (item.price * item.quantity);
         });
-        this.amountToSplit = total;
+        return total;
       },
 
       resetParticipants() {
         this.participantCount = 2;
         this.participants = [];
         if (this.splitType === 'Split Equally'){
-           this.participants =  [
+          this.participants =  [
               { name: this.generateRandomName(), amount: 0 },
               { name: this.generateRandomName(), amount: 0 }
             ];
-           this.splitEqually();
+          this.splitEqually();
         }
         if (this.splitType === 'Split By Amount') {
-          this.amountToSplit = this.calcTotalPrice();
           this.participants = [
-            { name: this.generateRandomName(), amount: 1 },
-            { name: this.generateRandomName(), amount: this.formatPrice(this.amountToSplit - 1) }
+            { name: this.generateRandomName(), amount: (this.getTotalPrice() > 1) ? 1 : this.formatPrice(this.getTotalPrice()/2) },
+            { name: this.generateRandomName(), amount: (this.getTotalPrice() > 1) ? this.formatPrice(this.getTotalPrice() - 1) : this.formatPrice(this.getTotalPrice()/2) }
           ];
-
         }
-
+        
+        
       },
       splitEqually(){
           //console.log("Participant count: ", this.participantCount);
@@ -596,7 +605,7 @@
                 this.participants.push( { name: this.generateRandomName(), amount: 0 });
               }
               this.participants.forEach(payer => {
-                  payer.amount = this.formatPrice(this.amountToSplit / this.participantCount);
+                  payer.amount = this.formatPrice(this.getTotalPrice() / this.participantCount);
               })
               //console.log("Equal Split Amount: ", this.participants);
           }
@@ -620,6 +629,13 @@
               this.participants.push({ name: this.generateRandomName(), amount: newParticipantAmount });
               this.adjustAmountsIfMismatch();
           }
+          else{
+            this.$q.notify({
+              type: 'negative',
+              message: 'Cannot add any more participants.',
+              position: 'top'
+            });
+          }
       },
 
       getHighestPayer(excludeIndex = -1) {
@@ -627,7 +643,7 @@
           (index !== excludeIndex && payer.amount > highest.amount) ? payer : highest, { amount: 0 });
       },
       getMaxAmount() {
-        return (this.amountToSplit - 1).toFixed(this.maxDecimalLength);
+        return (this.getTotalPrice() - 1).toFixed(this.maxDecimalLength);
       },
       generateRandomName() {
         return 'Payer ' + Math.random().toString(36).substring(7).toUpperCase();
@@ -646,7 +662,7 @@
           }
       },
       increaseAmount(payer){
-        if(payer.amount <= this.amountToSplit - ((this.participantCount) * 1)){
+        if(payer.amount <= this.getTotalPrice() - ((this.participantCount) * 1)){
           payer.amount = this.formatPrice(Math.max(0, (parseFloat(payer.amount) + 1)));
           this.adjustAmountsIfMismatch(payer);
         }
@@ -668,7 +684,7 @@
         else{
           this.$q.notify({
             type: 'negative',
-            message: 'The payment amount must at least be 1PHP or higher.',
+            message: 'The payment amount cannot go any lower.',
             position: 'top'
           });
           return;
@@ -676,9 +692,8 @@
 
       },
       adjustAmountsIfMismatch(excludePayer = null) {
-        this.amountToSplit = this.calcTotalPrice();
         let totalAssigned = this.participants.reduce((sum, p) => sum + p.amount, 0);
-        let difference = this.amountToSplit - totalAssigned;
+        let difference = this.getTotalPrice() - totalAssigned;
 
         if (difference !== 0) {
             let filteredParticipants = excludePayer 
@@ -693,8 +708,23 @@
         }
     },
 
+    confirmGenerate() {
+      this.$q.dialog({
+        title: 'Confirm',
+        message: 'Are you sure you want to proceed? You cannot return.',
+        cancel: true, // Show the cancel button
+        persistent: true, // Prevent closing by clicking outside
+        class: "confirm-dialog"
+      }).onOk(() => {
+        this.generateQRCodes();
+        this.showSplitExpenseForm = false;
+      }).onCancel(() => {
+        //--
+      });
+    },
     generateQRCodes(){
-      if(this.amountToSplit && this.amountToSplit > 0){
+      //console.log("Total" ,this.amountToSplit);
+      if(this.getTotalPrice() && this.getTotalPrice() > 0){
         this.participantsQRPairs = [];
         let amounts = [];
         this.participants.forEach(payer => {

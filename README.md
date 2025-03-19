@@ -1,19 +1,18 @@
 
 # Paytaca Paysplit Project (Recent Changes)
 
-- Modified UIs for QR-code Scanner dialog. 'Clear and Re-scan' icon button was added.
-- Auto-pause and auto-resume qrcode-stream camera when the bch address is filled and emptied.
-- BCH address saving through localStorage so users need not to fill-in their bch address next session.
-- Changed backdrop/background color for the 'main-function' dialogs to light-reddish-pink.
-- Changed the site icon and site/app name
-- Fixed the viewport width for better visibility in mobile browsers
-- Linked the 'Use Paysplit Now' button in IndexPage.vue to the 'getStarted' function in MainLayout.vue
-- Fixed the tall height of "paused frame" canvas when qrcode-stream is paused and added a matching style
-- Added BCH address input validation
+- Added a default "Quick Mode" to main function dialogs. The initiator only needs to directly input the total price amount to split.
+- Changed background colors for better visibility. (Animated image background overlay is temporary.
+- Scaled-up the dialog sizes for better visibility.
+- Changes display currency to pesos (PHP) and modified the scripts amount increments and decrements
+- Modified scripts to accommodate the added 'Quick Mode'.
+- Added a confirmation dialog when "Generate QR Codes" is clicked. The user cannot return to paysplit setup once the wallet and the qrcodes are generated.
 
 ## Next targets:
-  - New layout for generated qr-codes display dialog.
-  - Preload the image successfully to avoid background-image loading when dialog shows up for the first time after reload.
+  - Better layout for generated qr-codes display dialog. Should display the current amount in the wallet.
+  - send api requests to watchtower.cash to monitor balance changes in the generated temporary wallet.
+  - create a mechanism to identify which qrcodes has been scanned and paid.
+  - [Important] Temporarily save the generated wallet locally for a certain period of time. In case of unexpected situations where the payment process is interrupted mid-way(e.g. Sudden power loss, internet disconnection, page/session refresh, etc), the initiator can still resume the interrupted transaction. The temporary wallet can only be forgotten when the transfer process to the initiator's wallet is completed or when the temporary wallet is empty.
 
 ## Install the dependencies
 ```bash

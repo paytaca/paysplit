@@ -212,44 +212,62 @@
     </q-dialog>
 
 
-      <q-dialog v-model="showQRCodes" persistent>
-    <q-card class="q-pa-md kkb-forms qrcode-form">
-      <q-card-section>
-        <div class="text-h6">Payment QR Code</div>
-      </q-card-section>
+    <q-dialog v-model="showQRCodes" persistent>
+  <q-card class="q-pa-md kkb-forms qrcode-form">
+    <q-card-section>
+      <div class="text-h6">Payment QR Code</div>
+    </q-card-section>
 
-      <q-card-section class="q-pa-md flex justify-between items-center">
-        <!-- Left Icon Button (Maximized) -->
-        <div class="left-container">
-          <q-btn flat round  class="stretch-y-arrow" icon="fa-solid fa-angle-left" size="xl" />
+    <q-card-section class="q-pa-md flex justify-between items-center">
+      <!-- Left Icon Button -->
+      <div class="left-container">
+        <q-btn 
+          flat round class="stretch-y-arrow"
+          @click="prevQRCode"
+          icon="fa-solid fa-angle-left"
+          size="xl"
+          :disabled="currentQRCodeIndex === 0"
+        />
+      </div>
+
+      <!-- Center Container -->
+      <div class="center-container flex flex-column items-center">
+        <div v-if="participantsQRPairs[currentQRCodeIndex]?.paid" class="paid-stamp-bg">
+          <div class="paid-stamp"></div>
         </div>
+        <img
+          v-if="participantsQRPairs.length > 0"
+          :src="participantsQRPairs[currentQRCodeIndex].qrcode"
+          alt="Payment QR Code"
+          class="qrcode-img-large"
+        />
+        <p v-else class="text-grey">Loading QR Code...</p>
 
-        <!-- Center Container -->
-        <div class="center-container flex flex-column items-center">
-          <img
-            v-if="qrCodes.length > 0"
-            :src="qrCodes[0]"
-            alt="Payment QR Code"
-            class="qrcode-img-large"
-          />
-          <!-- Payer Name & Amount under QR Code -->
-          <div class="text-center q-mt-md text-h6">
-            <div><span class="text-bold">Payer: </span>JhanMike</div>
-            <div><span class="text-bold">Amount: </span>0.000005 BCH</div>
-          </div>
+        <!-- Payer Name & Amount under QR Code -->
+        <div v-if="participants.length > 0" class="text-center q-mt-md text-h6">
+          <div><span class="text-bold">Name: </span><span>{{ participantsQRPairs[currentQRCodeIndex]?.name}}</span></div>
+          <div><span class="text-bold">Amount: </span>{{ participantsQRPairs[currentQRCodeIndex]?.amount}} <span>BCH</span></div>
         </div>
+      </div>
 
-        <!-- Right Icon Button (Maximized) -->
-        <div class="right-container">
-          <q-btn flat round  class="stretch-y-arrow" icon="fa-solid fa-angle-right" size="xl" />
-        </div>
-      </q-card-section>
+      <!-- Right Icon Button -->
+      <div class="right-container">
+        <q-btn 
+          flat round class="stretch-y-arrow"
+          @click="nextQRCode"
+          icon="fa-solid fa-angle-right"
+          size="xl"
+          :disabled="currentQRCodeIndex >= participantsQRPairs.length - 1"
+        />
+      </div>
+    </q-card-section>
 
-      <q-card-actions align="right">
-        <q-btn flat label="Close" color="primary" v-close-popup />
-      </q-card-actions>
-    </q-card>
-  </q-dialog>
+    <q-card-actions align="right">
+      <q-btn label="Complete" color="primary" @click="completePaysplit()" />
+    </q-card-actions>
+  </q-card>
+</q-dialog>
+
 
 
 
@@ -285,7 +303,6 @@
         
         validAddress: false,
         paymentAmounts : [],
-        qrCodes: [],
         privateKeyWIF:"",
         publicKeyHex:"",
         bitcoinCashAddress: "",
@@ -311,6 +328,14 @@
           Utilities : [ "Electric Bill", "Water Bill", "Internet Bill", "Phone Bill", "Cable Subscription", "Gas Bill", "Garbage Collection", "Rent", "Maintenance Fee", "Housekeeping Service", "Security System", "Pest Control", "Lawn Care", "Pool Maintenance", "Home Insurance", "Renter's Insurance", "Storage Unit", "Satellite TV", "Streaming Services (Separate from Entertainment)", "Smart Home Devices", "Water Softener", "HVAC Maintenance", "Appliance Repair", "Landline Phone", "Alarm System Monitoring"],
           Others : [ "Donation", "Charity", "Miscellaneous Expense", "Subscription", "Printing Service", "Courier Service", "Postage Fee", "Legal Fees", "Accounting Services", "Financial Advisor Fees", "Online Learning Platform", "Software Subscription", "Domain Name Registration", "Web Hosting", "Bank Fees", "Health Insurance", "Life Insurance", "Asset Insurance", "Tax Preparation", "Professional Association Dues", "Notary Services", "Copywriting Services", "Graphic Design Services", "Event Planning", "Software Development"],
         },
+        
+        currentQRCodeIndex: 0,
+        participantsQRPairs: [
+          { name: this.generateRandomName(), amount: 0 , qrcode: null, paid: false},
+          { name: this.generateRandomName(), amount: 0 , qrcode: null, paid: false},
+        ],
+
+
       };
     },
     mounted(){
@@ -324,7 +349,7 @@
       async pasteAddress(){
           try {
             const text = await navigator.clipboard.readText(); // Read clipboard content
-            console.log("Clipboard content:", text);
+            //console.log("Clipboard content:", text);
             this.bchAddress = text;
             this.pauseCam = true;
           } catch (err) {
@@ -334,11 +359,11 @@
       saveInitiatorAddress(){
           if(this.rememberMe){
             localStorage.setItem('bchpadd', this.bchAddress);
-            console.log('Saved Address:', localStorage.getItem('bchpadd'));
+            //console.log('Saved Address:', localStorage.getItem('bchpadd'));
           }
           else{
             localStorage.removeItem('bchpadd');
-            console.log('Saved Address removed:');
+            //console.log('Saved Address removed:');
           }
       },
 
@@ -354,7 +379,7 @@
           else{
             const cleanAdd = this.bchAddress.split(':')[1];
             const pref =  this.bchAddress.split(':')[0];
-            console.log("Clean Address: ", cleanAdd);
+            //console.log("Clean Address: ", cleanAdd);
             if((pref === 'bitcoincash') && cleanAdd && (cleanAdd.length === 42) && !(/[^a-zA-Z0-9]/.test(cleanAdd)) && (cleanAdd.charAt(0) === 'q')){
               this.validAddress = true;
               this.showAddExpenseForm = true;
@@ -388,7 +413,7 @@
 
       retrieveAddress(){
         const savedadd = localStorage.getItem('bchpadd');
-        console.log('Saved Address:', savedadd);
+        //console.log('Saved Address:', savedadd);
         if(savedadd){
           this.bchAddress = savedadd;
           this.pauseCam = true;
@@ -396,11 +421,11 @@
       },
 
       onScannerInit () {
-        console.log('camera set up successfully')
+        //console.log('camera set up successfully')
       },
       onCameraError (error) {
         const vm = this
-        console.log('error', error)
+        //console.log('error', error)
         if (error.name === 'NotAllowedError') {
           // user denied camera access permission
           vm.error = vm.$t('CameraPermissionErrMsg1');
@@ -476,7 +501,7 @@
           });
           return;
         }
-        console.log("Items:", this.items);
+        //console.log("Items:", this.items);
         this.showAddExpenseForm = false;
         this.showSplitExpenseForm = true;
         this.splitType = "Split Equally";
@@ -512,11 +537,16 @@
 
       },
       splitEqually(){
+          //console.log("Participant count: ", this.participantCount);
           if(this.participantCount >= 2){
+              this.participants = [];
+              for(let n = 0; n < this.participantCount; n++){
+                this.participants.push( { name: this.generateRandomName(), amount: 0 });
+              }
               this.participants.forEach(payer => {
                   payer.amount = this.formatPrice(this.getTotalPrice() / this.participantCount);
               })
-              console.log("Equal Split Amount: ", this.participants);
+              //console.log("Equal Split Amount: ", this.participants);
           }
           else{
             this.participantCount = 2;
@@ -612,16 +642,35 @@
     },
 
     generateQRCodes(){
-      this.qrCodes = [];
+      this.participantsQRPairs = [];
       let amounts = [];
       this.participants.forEach(payer => {
         amounts.push(payer.amount);
       });
       this.createQRCodes(amounts);
+      console.log("PQRP: ", this.participantsQRPairs);
       this.showQRCodes = true;
     },
 
 
+    prevQRCode() {
+      if (this.currentQRCodeIndex > 0) {
+        this.currentQRCodeIndex -= 1;
+      }
+    },
+
+    nextQRCode() {
+      if (this.currentQRCodeIndex < this.participantsQRPairs.length - 1) {
+        this.currentQRCodeIndex += 1;
+      }
+    },
+
+    completePaysplit(){
+        //--
+    },
+
+
+    //-----------important----------------------------------
 
 
 
@@ -672,8 +721,6 @@
 
       const sha256Hash = await this.sha256(publicKeyHex, 'hex');
       const ripemdHash = this.ripemd160(this.hexToBin(sha256Hash));
-      console.log("RIPEMD-160 Hash:", ripemdHash, "Length:", ripemdHash.length);
-      // Create WIF key
       const extendedKey = new Uint8Array([0x80, ...privateKey, 0x01]);
       const hashWif1 = await this.sha256(extendedKey, 'hex');
       const hashWif2 = await this.sha256(this.hexToBin(hashWif1), 'hex');
@@ -701,17 +748,27 @@
     // Updates the public QR code with a payment amount
     async generatePublicQRCodes() {
     
-      for(const amount of this.paymentAmounts){
+      for(let n = 0; n < this.paymentAmounts.length; n++){
           const cleanAddress = this.bitcoinCashAddress.replace(/^bitcoincash:/, '');
           let qrDataPublic = `bitcoincash:${cleanAddress}`;
-          qrDataPublic += `?amount=${amount}`;
-          console.log("Qr sample: ",qrDataPublic);
+          qrDataPublic += `?amount=${this.paymentAmounts[n]}`;
+          //console.log("Address: ", qrDataPublic);
+          let paid = false;
+          if(this.paymentAmounts[n] === 0){
+            paid = true;
+          }
           try {
               let qrcode1 = await QRCode.toDataURL(qrDataPublic, {
-              errorCorrectionLevel: 'L',
+                errorCorrectionLevel: 'L',
               });
-              this.qrCodes.push(qrcode1);
-              //console.log(`New QR Code created for ${cleanAddress}`);
+              this.participantsQRPairs.push({
+                name: this.participants[n].name,
+                amount: this.participants[n].amount,
+                qrcode: qrcode1,
+                paid: paid,
+              });
+              
+              //this.qrCodes.push(qrcode1);
           } catch (error) {
               console.error(`Error generating QR code for ${cleanAddress}:`, error);
               return;
@@ -723,9 +780,6 @@
     async createQRCodes(amounts){
         this.paymentAmounts = amounts;
         this.generateNewKeys();
-        console.log("WIF:", this.privateKeyWIF);
-        console.log("Hex:", this.publicKeyHex);
-        console.log("QR Codes: ", this.qrCodes)
     },
 
 

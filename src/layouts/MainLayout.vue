@@ -127,7 +127,7 @@
           <div v-if="basicMode">
             <div class="custom-field">
               <div class="custom-label">Amount To Split</div>
-              <q-input v-model.number="amountToSplit" type="number" dense outlined class="custom-input c-br-1" min="2" @update:model-value="splitEqually">
+              <q-input v-model.number="amountToSplit" type="number" dense outlined class="custom-input c-br-1" min="2" @update:model-value="onSetTotalAmount()">
                 <template v-slot:append>
                   <span class="bch-unit">PHP</span>
                   <div class="custom-arrows">
@@ -160,7 +160,7 @@
             <div class="text-bold footer-row">
               <q-item class="q-pa-none" style="min-height: 20px; box-sizing:border-box; position: sticky; bottom: 0;">
                 <span style="min-width: 440px;text-align: right;">Total Amount: </span>
-                <span class="field-text" style="min-width: 160px; text-align: right; padding-right: 2px;">{{getTotalPrice()}} <b style="color: darkgoldenrod;">BCH</b></span>
+                <span class="field-text" style="min-width: 160px; text-align: right; padding-right: 2px;">{{this.amountToSplit}} <b style="color: darkgoldenrod;">BCH</b></span>
               </q-item>
             </div>
           </div>
@@ -428,6 +428,13 @@
         }
       },
 
+      onSetTotalAmount(){
+          if(this.basicMode && this.amountToSplit && this.amountToSplit > 0){
+            this.items = [];
+            this.items.push({ name: 'Item Bundle', quantity: 1, price: this.amountToSplit, filteredSuggestions: [] });
+          }
+      },
+
       onUpdateMode(){
           this.items = [];
           this.resetParticipants();
@@ -503,7 +510,7 @@
       },
 
       addItem() {
-        this.items.push({ name: '', quantity: 1, price: 0.00001, filteredSuggestions: [] });
+        this.items.push({ name: '', quantity: 1, price: 1, filteredSuggestions: [] });
       },
       removeItem(index) {
         this.items.splice(index, 1);
@@ -514,10 +521,10 @@
         return parseFloat(formatted.length > maxLength ? formatted.substring(0, maxLength) : formatted);
       },
       increasePrice(item) {
-        item.price = this.formatPrice((parseFloat(item.price) + 0.00001));
+        item.price = this.formatPrice((parseFloat(item.price) + 1));
       },
       decreasePrice(item) {
-        item.price = this.formatPrice(Math.max(0, (parseFloat(item.price) - 0.00001)));
+        item.price = this.formatPrice(Math.max(0, (parseFloat(item.price) - 1)));
       },
       filterSuggestions(item, val = '') {
         item.filteredSuggestions = val ? this.itemSuggestions[this.category].filter(suggestion => suggestion.toLowerCase().includes(val.toLowerCase())) : this.itemSuggestions[this.category];
@@ -553,12 +560,12 @@
         this.resetParticipants();
       },
 
-      getTotalPrice(){
+      calcTotalPrice(){
         let total = 0;
         this.items.forEach(item => {
             total += (item.price * item.quantity);
         });
-        return this.formatPrice(total);
+        this.amountToSplit = total;
       },
 
       resetParticipants() {
@@ -572,10 +579,10 @@
            this.splitEqually();
         }
         if (this.splitType === 'Split By Amount') {
-          let totalAmount = this.getTotalPrice();
+          this.amountToSplit = this.calcTotalPrice();
           this.participants = [
-            { name: this.generateRandomName(), amount: 0.00001 },
-            { name: this.generateRandomName(), amount: this.formatPrice(totalAmount - 0.00001) }
+            { name: this.generateRandomName(), amount: 1 },
+            { name: this.generateRandomName(), amount: this.formatPrice(this.amountToSplit - 1) }
           ];
 
         }
@@ -589,7 +596,7 @@
                 this.participants.push( { name: this.generateRandomName(), amount: 0 });
               }
               this.participants.forEach(payer => {
-                  payer.amount = this.formatPrice(this.getTotalPrice() / this.participantCount);
+                  payer.amount = this.formatPrice(this.amountToSplit / this.participantCount);
               })
               //console.log("Equal Split Amount: ", this.participants);
           }
@@ -602,8 +609,8 @@
       addParticipant() {
           this.participantCount += 1;
           let highestPayer = this.getHighestPayer();
-          if (highestPayer && highestPayer.amount > 0.00001) {
-              let newParticipantAmount = 0.00001;
+          if (highestPayer && highestPayer.amount > 1) {
+              let newParticipantAmount = 1;
               let updatedHighestAmount = this.formatPrice(highestPayer.amount - newParticipantAmount);
               if (updatedHighestAmount < 0) {
                   newParticipantAmount += updatedHighestAmount;
@@ -620,7 +627,7 @@
           (index !== excludeIndex && payer.amount > highest.amount) ? payer : highest, { amount: 0 });
       },
       getMaxAmount() {
-        return (this.getTotalPrice() - 0.00001).toFixed(this.maxDecimalLength);
+        return (this.amountToSplit - 1).toFixed(this.maxDecimalLength);
       },
       generateRandomName() {
         return 'Payer ' + Math.random().toString(36).substring(7).toUpperCase();
@@ -639,8 +646,8 @@
           }
       },
       increaseAmount(payer){
-        if(payer.amount <= this.getTotalPrice() - ((this.participantCount) * 0.00001)){
-          payer.amount = this.formatPrice(Math.max(0, (parseFloat(payer.amount) + 0.00001)));
+        if(payer.amount <= this.amountToSplit - ((this.participantCount) * 1)){
+          payer.amount = this.formatPrice(Math.max(0, (parseFloat(payer.amount) + 1)));
           this.adjustAmountsIfMismatch(payer);
         }
         else{
@@ -654,14 +661,14 @@
         
       },
       decreaseAmount(payer){
-        if(payer.amount > 0.00001){
-          payer.amount = this.formatPrice(Math.max(0, (parseFloat(payer.amount) - 0.00001)));
+        if(payer.amount > 1){
+          payer.amount = this.formatPrice(Math.max(0, (parseFloat(payer.amount) - 1)));
           this.adjustAmountsIfMismatch(payer);
         }
         else{
           this.$q.notify({
             type: 'negative',
-            message: 'The payment amount must at least be 0.00001 or higher.',
+            message: 'The payment amount must at least be 1PHP or higher.',
             position: 'top'
           });
           return;
@@ -669,9 +676,9 @@
 
       },
       adjustAmountsIfMismatch(excludePayer = null) {
-        let totalAmount = this.getTotalPrice();
+        this.amountToSplit = this.calcTotalPrice();
         let totalAssigned = this.participants.reduce((sum, p) => sum + p.amount, 0);
-        let difference = totalAmount - totalAssigned;
+        let difference = this.amountToSplit - totalAssigned;
 
         if (difference !== 0) {
             let filteredParticipants = excludePayer 
@@ -687,14 +694,24 @@
     },
 
     generateQRCodes(){
-      this.participantsQRPairs = [];
-      let amounts = [];
-      this.participants.forEach(payer => {
-        amounts.push(payer.amount);
-      });
-      this.createQRCodes(amounts);
-      console.log("PQRP: ", this.participantsQRPairs);
-      this.showQRCodes = true;
+      if(this.amountToSplit && this.amountToSplit > 0){
+        this.participantsQRPairs = [];
+        let amounts = [];
+        this.participants.forEach(payer => {
+          amounts.push(payer.amount);
+        });
+        this.createQRCodes(amounts);
+        console.log("PQRP: ", this.participantsQRPairs);
+        this.showQRCodes = true;
+      }
+      else{
+        this.$q.notify({
+          type: 'negative',
+          message: 'Please enter an amount greater than 1PHP to proceed.',
+          position: 'top'
+        });
+      }
+      
     },
 
 
@@ -711,7 +728,7 @@
     },
 
     completePaysplit(){
-        //--
+        //----
     },
 
 

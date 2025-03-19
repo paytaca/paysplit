@@ -50,10 +50,11 @@
 
 <!--________________________________________Add KKB expenses dialog _________________________________________--->
 
-    <q-dialog v-model="showAddExpenseForm" persistent>
+    <q-dialog v-model="addExpenseFormVisible" persistent>
       <q-card class="q-pa-md kkb-forms">
-        <q-card-section>
+        <q-card-section class="add-expense-form-top-sec">
           <div class="text-h6 text-bold">Add Expenses</div>
+          <q-checkbox v-model="basicMode" class="basic-mode-toggle" @update:model-value="onUpdateMode()" label="Basic Mode" checked/>
         </q-card-section>
         <q-card-section class="q-gutter-md" style="padding-bottom: 6px;">
           <div class="custom-field">
@@ -87,7 +88,7 @@
                     </q-input>
                     <q-input v-model.number="item.price" type="number" outlined dense class="price-field item-inputs custom-input" @update:model-value="(val) => item.price = formatPrice(val)">
                       <template v-slot:append>
-                        <span class="bch-unit">BCH</span>
+                        <span class="bch-unit">PHP</span>
                         <div class="custom-arrows">
                           <q-btn dense flat icon="keyboard_arrow_up" @click="increasePrice(item)" />
                           <q-btn dense flat icon="keyboard_arrow_down" @click="decreasePrice(item)" />
@@ -104,7 +105,7 @@
         </q-card-section>
         <q-card-section style="padding-top: 0px; padding-bottom: 0px;">
           <q-card-actions align="right" style="padding-right: 0px;">
-            <q-btn label="Cancel" class="cancel-btn text-capitalize" flat @click="showAddExpenseForm = false" />
+            <q-btn label="Cancel" class="cancel-btn text-capitalize" flat @click="addExpenseFormVisible = false" />
             <q-btn class="proceed-btn text-capitalize" label="Split Payment" @click="splitPayment()" />
           </q-card-actions>
         </q-card-section>
@@ -117,35 +118,52 @@
 
 <q-dialog  v-model="showSplitExpenseForm" persistent>
       <q-card  class="q-pa-md kkb-forms split-expense-q-card">
-        <q-card-section>
+        <q-card-section class="split-expense-form-top">
           <div class="text-h6 text-bold">Split KKB Expenses</div>
+          <q-checkbox v-model="basicMode" class="basic-mode-toggle" @update:model-value="onUpdateMode()" label="Basic Mode" checked/>
         </q-card-section>
+        
         <q-card-section class="q-gutter-md" style="padding-bottom: 6px;">
-          <div class="header-row text-bold">
-            <q-item class="q-pa-none" style="min-height: 20px; box-sizing:border-box;">
-              <span  style="min-width: 230px; text-align: left">Item(s)</span>
-              <span  style="min-width: 60px; text-align: right;">Quantity</span>
-              <span  style="min-width: 150px;text-align: right;">Price/Quantity</span>
-              <span  style="min-width: 160px; text-align: right;">Total Prices</span>
-            </q-item>
+          <div v-if="basicMode">
+            <div class="custom-field">
+              <div class="custom-label">Amount To Split</div>
+              <q-input v-model.number="amountToSplit" type="number" dense outlined class="custom-input c-br-1" min="2" @update:model-value="splitEqually">
+                <template v-slot:append>
+                  <span class="bch-unit">PHP</span>
+                  <div class="custom-arrows">
+                    <q-btn dense flat icon="keyboard_arrow_up" @click="amountToSplit = Math.min(9999, amountToSplit + 100)" />
+                    <q-btn dense flat icon="keyboard_arrow_down" @click="amountToSplit = Math.max(1, amountToSplit - 100)" />
+                  </div>
+                </template>
+              </q-input>
+            </div>
           </div>
-          <div class="q-list-container item-list-tally-container">
-            <q-list class="full-width item-list-tally">
-              <q-item v-for="(item, index) in items" :key="index" class="q-pa-none item-tally-row">
-                  <span class="field-text" style="min-width: 230px;">{{item.name}}  </span>
-                  <span class="field-text" style="min-width: 60px; text-align: right;">x {{ item.quantity }}</span>
-                  <span class="field-text" style="min-width: 150px;text-align: right;">{{ item.price }} <b style="color: darkgoldenrod;">BCH</b></span>
-                  <span class="field-text" style="min-width: 160px; text-align: right;">{{ formatPrice(item.quantity * item.price) }} <b style="color: darkgoldenrod;">BCH</b></span>
+          <div v-if="!basicMode">
+            <div class="header-row text-bold">
+              <q-item class="q-pa-none" style="min-height: 20px; box-sizing:border-box;">
+                <span  style="min-width: 230px; text-align: left">Item(s)</span>
+                <span  style="min-width: 60px; text-align: right;">Quantity</span>
+                <span  style="min-width: 150px;text-align: right;">Price/Quantity</span>
+                <span  style="min-width: 160px; text-align: right;">Total Prices</span>
               </q-item>
-            </q-list>
+            </div>
+            <div class="q-list-container item-list-tally-container">
+              <q-list class="full-width item-list-tally">
+                <q-item v-for="(item, index) in items" :key="index" class="q-pa-none item-tally-row">
+                    <span class="field-text" style="min-width: 230px;">{{item.name}}  </span>
+                    <span class="field-text" style="min-width: 60px; text-align: right;">x {{ item.quantity }}</span>
+                    <span class="field-text" style="min-width: 150px;text-align: right;">{{ item.price }} <b style="color: darkgoldenrod;">BCH</b></span>
+                    <span class="field-text" style="min-width: 160px; text-align: right;">{{ formatPrice(item.quantity * item.price) }} <b style="color: darkgoldenrod;">BCH</b></span>
+                </q-item>
+              </q-list>
+            </div>
+            <div class="text-bold footer-row">
+              <q-item class="q-pa-none" style="min-height: 20px; box-sizing:border-box; position: sticky; bottom: 0;">
+                <span style="min-width: 440px;text-align: right;">Total Amount: </span>
+                <span class="field-text" style="min-width: 160px; text-align: right; padding-right: 2px;">{{getTotalPrice()}} <b style="color: darkgoldenrod;">BCH</b></span>
+              </q-item>
+            </div>
           </div>
-          <div class="text-bold footer-row">
-            <q-item class="q-pa-none" style="min-height: 20px; box-sizing:border-box; position: sticky; bottom: 0;">
-              <span style="min-width: 440px;text-align: right;">Total Amount: </span>
-              <span class="field-text" style="min-width: 160px; text-align: right; padding-right: 2px;">{{getTotalPrice()}} <b style="color: darkgoldenrod;">BCH</b></span>
-            </q-item>
-          </div>
-
 
           <div class="custom-field">
             <div class="custom-label">Split Type</div>
@@ -203,7 +221,7 @@
 
         <q-card-section style="padding-top: 0px; padding-bottom: 0px;">
           <q-card-actions align="right" style="padding-right: 0px;">
-            <q-btn label="Return" class="cancel-btn text-capitalize" flat @click="showSplitExpenseForm = false; showAddExpenseForm = true;" />
+            <q-btn label="Return" class="cancel-btn text-capitalize" flat @click="if(!basicMode) {showSplitExpenseForm = false; addExpenseFormVisible = true; } else{ showSplitExpenseForm = false;}" />
             <q-btn class="proceed-btn text-capitalize" label="Generate QR Codes" @click="generateQRCodes()"/>
           </q-card-actions>
         </q-card-section>
@@ -289,10 +307,11 @@
     components: { QrcodeStream },
     data() {
       return {
+        basicMode: true,
         bchAddress: "",
         rememberMe: true,
         getStartedDialog : false,
-        showAddExpenseForm: false,
+        addExpenseFormVisible: false,
         showSplitExpenseForm: false,
         showQRCodes: false,
         maxIntegerLength: 7,
@@ -314,6 +333,7 @@
         splitType: 'Split Equally',
         splitTypes: ['Split Equally',  'Split By Amount'], //'Split By Items',
         items: [],
+        amountToSplit: 0,
         categories: ['Food', 'Entertainment', 'Family', 'Friends', 'Activities', 'Gift', 'Shopping', 'Transportation', 'Travel', 'Utilities', 'Others'],
         itemSuggestions: {
           Food : [ "Rice", "Bread", "Milk", "Eggs", "Meat", "Fish", "Vegetables", "Fruits", "Snacks", "Soda", "Juice", "Coffee", "Tea", "Beer", "Wine", "Fast Food", "Barbeque", "Chicken Meat", "Spagetti", "Pizza", "Burger", "Pasta", "Noodles", "Yogurt", "Cheese", "Oatmeal", "Cereal", "Condiments", "Ketsup", "Sauce", "Spices", "Cooking Oil", "Frozen Meals", "Deli Meats", "Baked Goods", "Cookies", "Cake",  "Donuts", "Ice Cream", "Smoothies", "Protein Powder", "Energy Drinks", "Specialty Sauces", "Ethnic Cuisine Ingredients", "Meal Delivery Service", "Restaurant Takeout", "Prepared Salads", "Seafood (Shellfish, etc.)"],
@@ -343,6 +363,7 @@
     },
     methods: {
       getStarted(){
+        
         this.getStartedDialog = !this.getStartedDialog; 
         this.retrieveAddress();
       },
@@ -382,7 +403,7 @@
             //console.log("Clean Address: ", cleanAdd);
             if((pref === 'bitcoincash') && cleanAdd && (cleanAdd.length === 42) && !(/[^a-zA-Z0-9]/.test(cleanAdd)) && (cleanAdd.charAt(0) === 'q')){
               this.validAddress = true;
-              this.showAddExpenseForm = true;
+              this.showAddExpenseForm();
               this.saveInitiatorAddress();
             }
             else{
@@ -395,6 +416,30 @@
               this.clearAddress();
             }         
           }  
+      },
+
+      showAddExpenseForm(){
+        if(this.basicMode){
+          this.addExpenseFormVisible = false;
+          this.showSplitExpenseForm = true;
+        }
+        else{
+          this.addExpenseFormVisible = true;
+        }
+      },
+
+      onUpdateMode(){
+          this.items = [];
+          this.resetParticipants();
+          this.splitType = 'Split Equally';
+          if(!this.basicMode){
+            this.showSplitExpenseForm = false;
+            this.addExpenseFormVisible = true;
+          }
+          else{
+            this.showSplitExpenseForm = true;
+            this.addExpenseFormVisible = false;
+          }
       },
 
       clearAddress(){
@@ -502,7 +547,7 @@
           return;
         }
         //console.log("Items:", this.items);
-        this.showAddExpenseForm = false;
+        this.addExpenseFormVisible = false;
         this.showSplitExpenseForm = true;
         this.splitType = "Split Equally";
         this.resetParticipants();

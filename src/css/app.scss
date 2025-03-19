@@ -366,6 +366,16 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 
+
+.basic-mode-toggle{
+   position: absolute;
+   display: block;
+   width: fit-content;
+   height: auto;
+   right: 20px;
+   top: 0;
+}
+
 /* ---------- Blue-glow Shaded input fields------------------- */
   .q-field{
     background: $transparent-x-darker-bg !important;
@@ -408,8 +418,9 @@ input[type="number"]::-webkit-outer-spin-button {
   //-------------------for add expense q-card------------
   .kkb-forms{
     min-width: 700px; 
-    background-color: $primary-hover-hover; 
-    background-image: url('assets/form-bg-1.png');
+    //background-color: $primary-hover-hover; 
+    background-color: #5c7379;
+    //background-image: url('assets/form-bg-1.png');
     background-repeat: no-repeat;
     background-size: cover;
     max-width: 700px; 
@@ -417,6 +428,12 @@ input[type="number"]::-webkit-outer-spin-button {
     transform: scale(0.8); 
     border-radius: 10px; 
     transform-origin: center;
+    .add-expense-form-top-sec{
+      padding-top: 0px !important;
+    }
+    .split-expense-form-top{
+      margin-bottom: 20px !important;
+    }
   }
 //--------------------------------------
   .action-btn{

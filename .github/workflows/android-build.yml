@@ -1,0 +1,47 @@
+name: Android APK Build
+
+on: [push, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install Quasar CLI
+        run: npm install -g @quasar/cli
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Add Capacitor & Android
+        run: |
+          quasar mode add capacitor
+          quasar capacitor add android
+
+      - name: Build Quasar App
+        run: quasar build
+
+      - name: Copy Build Files to Capacitor
+        run: quasar capacitor copy android
+
+      - name: Setup Java & Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Build APK
+        run: |
+          cd src-capacitor/android
+          ./gradlew assembleDebug
+
+      - name: Upload APK as Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: built-apk
+          path: src-capacitor/android/app/build/outputs/apk/debug/app-debug.apk

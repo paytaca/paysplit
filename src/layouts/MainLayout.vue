@@ -357,7 +357,8 @@
           { name: this.generateRandomName(), amount: 0 , qrcode: null, paid: false},
           { name: this.generateRandomName(), amount: 0 , qrcode: null, paid: false},
         ],
-
+        worker: null,
+        tempWalletBalance: 0,
 
       };
     },
@@ -752,9 +753,13 @@
           amounts.push(payer.amount*(1/bchPesoPrice));
         });
         //console.log("Amts: ", amounts);
-        this.createQRCodes(amounts);
-        //console.log("PQRP: ", this.participantsQRPairs);
+        this.paymentAmounts = amounts;
+        //console.log("Amots: ", this.paymentAmounts);
+        await this.generateNewKeys();
+
+        console.log("t-ADDRESS: ", this.bitcoinCashAddress);
         this.showQRCodes = true;
+        this.startBalanceWorker();
       }
       else{
         this.$q.notify({
@@ -815,7 +820,7 @@
       this.privateKeyWIF = privateKey.wif;
       this.publicKeyHex = privateKey.publicKey;
       this.bitcoinCashAddress = privateKey.address;
-      this.generatePublicQRCodes();
+      await this.generatePublicQRCodes();
     },
     
     // Generates a private key, derives public key and Bitcoin Cash address
@@ -865,6 +870,8 @@
       for(let n = 0; n < this.paymentAmounts.length; n++){
           const cleanAddress = this.bitcoinCashAddress.replace(/^bitcoincash:/, '');
           let qrDataPublic = `bitcoincash:${cleanAddress}`;
+          this.publicWalletAddress = qrDataPublic;
+          //console.log("Address: ", this.publicWalletAddress);
           qrDataPublic += `?amount=${this.paymentAmounts[n]}`;
           //console.log("Address: ", qrDataPublic);
           let paid = false;
@@ -881,7 +888,7 @@
                 qrcode: qrcode1,
                 paid: paid,
               });
-              
+              console.log("PAmt: ", this.paymentAmounts[n]);
               //this.qrCodes.push(qrcode1);
           } catch (error) {
               console.error(`Error generating QR code for ${cleanAddress}:`, error);
@@ -890,13 +897,6 @@
           
       }
     },
-    
-    async createQRCodes(amounts){
-        this.paymentAmounts = amounts;
-        console.log("Amots: ", this.paymentAmounts);
-        this.generateNewKeys();
-    },
-
 
         // Convert Uint8Array to Hex
     binToHex(uint8Array) {
@@ -931,9 +931,53 @@
       return cashaddr.encode(prefix, type.toUpperCase(), payload);
     },
 
+    //---------- for temp wallet balance monitoring ---------------
+
+    startBalanceWorker() {
+      if (window.Worker) {
+        this.worker = new Worker(new URL("./balanceWorker.js", import.meta.url), { type: "module" });
+
+        this.worker.onmessage = (event) => {
+          if (event.data.error) {
+            console.error(event.data.error);
+          } else {
+            const updatedBalance = event.data.balance;
+            const balChange = updatedBalance - this.tempWalletBalance;
+            if(balChange > 0){
+              if(parseFloat(balChange).toFixed(7) === parseFloat(this.participantsQRPairs[this.currentQRCodeIndex].amount).toFixed(7)){
+                this.participantsQRPairs[this.currentQRCodeIndex].paid = true;
+              }
+              else{ //countermeasure
+                  for(var i = 0; i < this.participantsQRPairs.length; i++){
+                    if(parseFloat(balChange).toFixed(7) === parseFloat(this.participantsQRPairs[i].amount).toFixed(7)){
+                      this.participantsQRPairs[i].paid = true;
+                      break;
+                    }
+                  }
+              }
+            }
+            console.log("Updated Balance:", updatedBalance);
+          }
+        };
+
+        this.worker.postMessage({ address: this.address });
+      } else {
+        console.error("Web Workers not supported in this browser.");
+      }
+      if (this.worker) {
+        this.worker.postMessage({ address: this.bitcoinCashAddress });
+      }
+    },
+    
+    stopBalanceWorker() {
+      if (this.worker) {
+        this.worker.terminate();
+        this.worker = null;
+      }
+    },
 
 
+    },
 
-    }
   };
 </script>

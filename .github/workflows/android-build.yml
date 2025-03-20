@@ -23,7 +23,7 @@ jobs:
 
       - name: Add Capacitor & Android
         run: |
-          quasar mode add capacitor
+          echo "org.capacitor.quasar.app" | quasar mode add capacitor
           quasar capacitor add android
 
       - name: Build Quasar App

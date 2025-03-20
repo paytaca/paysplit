@@ -21,9 +21,6 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Install Capacitor Extension
-        run: quasar ext add @quasar/capacitor
-
       - name: Add Capacitor Mode & Android
         run: |
          quasar mode add capacitor || echo "Capacitor mode already added"

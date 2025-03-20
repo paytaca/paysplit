@@ -24,10 +24,10 @@ jobs:
       - name: Install Capacitor Extension
         run: quasar ext add @quasar/capacitor
 
-      - name: Add Capacitor & Android
+      - name: Add Capacitor Mode & Android
         run: |
-          echo "org.capacitor.quasar.app" | quasar mode add capacitor
-          quasar capacitor add android
+         quasar mode add capacitor || echo "Capacitor mode already added"
+         quasar capacitor add android || echo "Android platform already added"
 
       - name: Build Quasar App
         run: quasar build

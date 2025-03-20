@@ -200,7 +200,7 @@ input[type="number"]::-webkit-outer-spin-button {
     font-size: small;
     font-weight: bold;
     margin-right: -4px;
-    color: darkgoldenrod;
+    color: $unit-colors;
     box-sizing: border-box;
   }
   
@@ -222,6 +222,7 @@ input[type="number"]::-webkit-outer-spin-button {
 
   /*--------- custom labels on the shaded left of custom input fields -------*/
   .custom-label {
+    color: $text-white-grey;
     background: $primary-headers-bg;
     padding: 10px 12px;
     min-width: 120px; 
@@ -371,11 +372,16 @@ input[type="number"]::-webkit-outer-spin-button {
 
 
 .basic-mode-toggle{
+   color: $input-text-grey;
+   background-color: $transparent-x-darker-bg;
+   border: 1px solid $input-text-grey;;
+   border-radius: 4px;
+   padding-right: 10px;
    position: absolute;
    display: block;
    width: fit-content;
    height: auto;
-   right: 20px;
+   right: 17px;
    top: 0;
 }
 
@@ -390,6 +396,7 @@ input[type="number"]::-webkit-outer-spin-button {
 
   //------------ item list header row ---------------//
   .header-row {
+    color: $text-white-grey;
     background-color: $primary-headers-bg !important; 
     padding: 8px 12px; 
     border-top-left-radius: 4px;
@@ -398,6 +405,7 @@ input[type="number"]::-webkit-outer-spin-button {
   //------------------------------------
   .footer-row {
     margin-top: 0;
+    color: $text-white-grey;
     background-color: $primary-headers-bg !important; 
     padding: 4px 12px; 
     border-bottom-left-radius: 4px;
@@ -406,6 +414,7 @@ input[type="number"]::-webkit-outer-spin-button {
 
   //-------- for all 'proceed' buttons ------------//
   .proceed-btn{
+    color: $text-white-grey;
     background-color: $primary-imp-action-bg;
     font-weight: bold;
     min-width: 200px;
@@ -423,13 +432,13 @@ input[type="number"]::-webkit-outer-spin-button {
     min-width: 700px; 
     //background-color: $primary-hover-hover; 
     background-color: $dialog-bg-color;
-    background-image: url('assets/dialog-card-bg.svg');
+    background-image: url('assets/dialog-bg-new.png');
     background-repeat: no-repeat;
     background-size: cover;
     max-width: 700px; 
     max-height: 700px !important;
     overflow-y: hidden; 
-    transform: scale(0.8); 
+    transform: scale(0.9); 
     border-radius: 10px; 
     transform-origin: center;
     .add-expense-form-top-sec{
@@ -438,14 +447,23 @@ input[type="number"]::-webkit-outer-spin-button {
     .split-expense-form-top{
       margin-bottom: 20px !important;
     }
+    .q-card__section{
+      .text-h6.text-bold{
+        color: $header-text-dark;
+        text-shadow: -1px -1px 0 #aaaaaa,
+        1px -1px 1px #aaaaaa,
+        -1px 1px 1px #aaaaaa,
+        1px 1px 1px #aaaaaa; 
+      }
+    }
 
-    transform-origin: center;
-    transform: scale(0.9);
+    
+    
   }
 
 //----------for confirm dialog -------
 .confirm-dialog{
-  background-color: $dialog-bg-lighter-color;
+  background-color: $dialog-bg-color;
 
   div button span span{
     color: rgb(105, 18, 18);
@@ -453,7 +471,8 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 //--------------------------------------
   .action-btn{
-    background-color: $primary-action-bg;
+    color: $text-white-grey;
+    background-color: $primary-headers-bg;
     font-weight: bold;
   }
 
@@ -473,6 +492,7 @@ input[type="number"]::-webkit-outer-spin-button {
   font-size: smaller;
   position: absolute;
   min-width: 130px;
+  color: $text-white-grey;
   background-color: $primary-imp-action-bg;
   border-radius: 18px;
   box-shadow: 1px 0px 1px 2px rgba(26, 26, 26, 0.1);
@@ -517,7 +537,7 @@ input[type="number"]::-webkit-outer-spin-button {
   background-position-y: 80px;
   background-repeat: no-repeat;
   background-size: contain;
-  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
+  //box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
   border-radius: 0; /* Remove rounded edges */
   overflow-x: hidden;
 
@@ -673,7 +693,7 @@ input[type="number"]::-webkit-outer-spin-button {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: $primary-action-bg;
+  color: $primary-headers-bg;
 }
 
 .q-remember-me {
@@ -726,21 +746,39 @@ input[type="number"]::-webkit-outer-spin-button {
   flex-direction: column;
 }
 
+.right-container{
+  margin-right: 60px;
+  margin-bottom: 80px;
+}
+
+.left-container{
+  margin-left: 81px;
+  margin-bottom: 80px;
+}
+
 .left-container, .right-container {
   display: flex;
   align-items: center;
+  .q-btn span i{
+    transform-origin: center;
+    transform: scale(1.7);
+    color:#2e2e2e;
+    ;
+  }
 }
 
 
 .text-center.q-mt-md.text-h6{
-  width: 100%;
-
+  width: fit-content;
+  font-size: small;
+  line-height: 20px;
 }
 
 .qrcode-img-large {
-  width: 250px; /* Adjust as needed */
-  height: 250px;
-  margin: 10px auto;
+  width: 200px; /* Adjust as needed */
+  height: 200px;
+
+  margin: 10px 0;
   object-fit: contain; /* Prevents stretching */
 }
 
@@ -758,7 +796,9 @@ input[type="number"]::-webkit-outer-spin-button {
 //---------------//-////------------///
 
 .center-container {
-  min-width: 250px; /* Prevents layout shifting */
+  min-width: 200px;
+  display: block; 
+  margin: auto 0;
 }
 
 
@@ -767,3 +807,6 @@ input[type="number"]::-webkit-outer-spin-button {
   min-height: 50px; /* Ensures buttons remain large */
 }
 
+.qrcode-pay-detail-con{
+  padding-left: 97px;
+}

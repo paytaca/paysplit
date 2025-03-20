@@ -233,19 +233,20 @@
     <q-dialog v-model="showQRCodes" persistent>
   <q-card class="q-pa-md kkb-forms qrcode-form">
     <q-card-section>
-      <div class="text-h6">Payment QR Code</div>
+      <div class="text-h6 text-bold">Payment QR Code</div>
     </q-card-section>
 
-    <q-card-section class="q-pa-md flex justify-between items-center">
+    <q-card-section class="q-pa-md flex items-center qrcode-pay-detail-con">
       <!-- Left Icon Button -->
       <div class="left-container">
         <q-btn 
-          flat round class="stretch-y-arrow"
+          flat dense class="stretch-y-arrow"
           @click="prevQRCode"
-          icon="fa-solid fa-angle-left"
+          icon="arrow_left" 
           size="xl"
           :disabled="currentQRCodeIndex === 0"
         />
+
       </div>
 
       <!-- Center Container -->
@@ -264,16 +265,17 @@
         <!-- Payer Name & Amount under QR Code -->
         <div v-if="participants.length > 0" class="text-center q-mt-md text-h6">
           <div><span class="text-bold">Name: </span><span>{{ participantsQRPairs[currentQRCodeIndex]?.name}}</span></div>
-          <div><span class="text-bold">Amount: </span>{{ participantsQRPairs[currentQRCodeIndex]?.amount}} <span>PHP</span></div>
+          <div><span class="text-bold">Amount (PHP): </span>{{ parseFloat(participants[currentQRCodeIndex]?.amount).toFixed(2)}} <span>Pesos</span></div>
+          <div><span class="text-bold">Amount (BCH): </span>{{ parseFloat(participantsQRPairs[currentQRCodeIndex]?.amount).toFixed(7)}} <span>BCH</span></div>
         </div>
       </div>
 
       <!-- Right Icon Button -->
       <div class="right-container">
         <q-btn 
-          flat round class="stretch-y-arrow"
+          flat dense class="stretch-y-arrow"
           @click="nextQRCode"
-          icon="fa-solid fa-angle-right"
+          icon="arrow_right"
           size="xl"
           :disabled="currentQRCodeIndex >= participantsQRPairs.length - 1"
         />
@@ -302,6 +304,7 @@
   import cashaddr from "cashaddrjs";
   import CryptoJS from "crypto-js";
   import QRCode from "qrcode";
+  import axios from 'axios';
 
   export default {
     components: { QrcodeStream },
@@ -722,16 +725,35 @@
         //--
       });
     },
-    generateQRCodes(){
+    async generateQRCodes(){
       //console.log("Total" ,this.amountToSplit);
       if(this.getTotalPrice() && this.getTotalPrice() > 0){
         this.participantsQRPairs = [];
         let amounts = [];
+        let bchPesoPrice;
+        try {
+          const response = await axios.get('https://watchtower.cash/api/bch-prices/?currencies=php');
+          bchPesoPrice = response.data[0].price_value; 
+          console.log("PriceBCH: ", bchPesoPrice);
+        } catch (err) {
+          //error.value = 'Failed to fetch BCH price';
+          console.error(err);
+        }
+        if(!bchPesoPrice && bchPesoPrice == 0){
+            this.$q.notify({
+              type: 'negative',
+              message: 'Error Occurred! Cannot fetch BCH price.',
+              position: 'top'
+            });
+           return;
+        }
         this.participants.forEach(payer => {
-          amounts.push(payer.amount);
+          //console.log("1 PHP = ", (1/bchPesoPrice), "Res: ", payer.amount*(1/bchPesoPrice));
+          amounts.push(payer.amount*(1/bchPesoPrice));
         });
+        //console.log("Amts: ", amounts);
         this.createQRCodes(amounts);
-        console.log("PQRP: ", this.participantsQRPairs);
+        //console.log("PQRP: ", this.participantsQRPairs);
         this.showQRCodes = true;
       }
       else{
@@ -855,7 +877,7 @@
               });
               this.participantsQRPairs.push({
                 name: this.participants[n].name,
-                amount: this.participants[n].amount,
+                amount: this.paymentAmounts[n],
                 qrcode: qrcode1,
                 paid: paid,
               });
@@ -871,6 +893,7 @@
     
     async createQRCodes(amounts){
         this.paymentAmounts = amounts;
+        console.log("Amots: ", this.paymentAmounts);
         this.generateNewKeys();
     },
 

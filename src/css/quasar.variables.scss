@@ -11,14 +11,13 @@
 // It's highly recommended to change the default colors
 // to match your app's branding.
 // Tip: Use the "Theme Builder" on Quasar's documentation website.
-$primary   : #9c3c3c;
-$dropdown-bg : #5c7379;
-$dialog-bg-color: rgb(54, 78, 105);
-$dialog-bg-lighter-color: rgb(72, 102, 137);
-$primary-headers-bg : #863c3c;
-$primary-action-bg: #954040;
-
-$primary-imp-action-bg: #a53a3c; //----float/proceed btn bg----
+$primary   : rgb(141, 50, 50);
+$dropdown-bg : #a4abbc;
+$dialog-bg-color: rgb(152, 167, 184);
+//$dialog-bg-lighter-color: rgb(72, 102, 137);
+$primary-headers-bg : #762426; //labels, list header, action btns bgs
+$unit-colors: rgb(118, 87, 7);
+$primary-imp-action-bg: #923537; //----float/proceed btn bg----
 $primary-hover   : #a25153; //-----float/proceed btn hover bg---
 $primary-hover-hover   : #a16869;
 $primary-xx-darker-bg: #283134;
@@ -31,21 +30,23 @@ $primary-bgrey-bg: rgb(47, 67, 77);//---dropdown bg---
 
 $primary-dark-bg: #90b6c5;//-----card bg---
 
+$transparent-darker-bg: #45565c95;//-----cancel btn bg----//
+
+$transparent-dark-bg: #21506165;
+$header-text-dark: #1c1c1c;
+//------- for dark-transparent input field ---------//
+$input-text-grey: #2f2f2f; 
+$text-white-grey: #bcbbbb; 
+$transparent-x-darker-bg: #95999a7c; //bg
+$primary-dark-border:#171d20; //border
+//--------------------------------------------------//
+
+
+
 $primary-dark-border:#171d20;
 $primary-field-bg: #3b535b;
 $transparent-darker: #28313477;
 $transparent-xx-darker: #28313477;
-
-$transparent-darker-bg: #45565c95;//-----cancel btn bg----//
-
-$transparent-dark-bg: #21506165;
-
-//------- for dark-transparent input field ---------//
-$input-text-grey: #939393; 
-$transparent-x-darker-bg: #3a484d7c; //bg
-$primary-dark-border:#171d20; //border
-//--------------------------------------------------//
-
 //$primary-light : #2fAAD2;
 //$primary-dark : #773333;
 $secondary : #26A69A;

@@ -48,7 +48,7 @@
 
 <script>
 import flashm from 'src/assets/flashm.png'
-import "src/css/index-page.scss";
+import "src/css/page.scss";
 
 export default {
   name: 'LandingPage',

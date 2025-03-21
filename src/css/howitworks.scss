@@ -1,0 +1,36 @@
+.how-it-works {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  
+  .description {
+    font-size: 18px;
+    margin-bottom: 20px;
+  }
+  
+  .step-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 20px 0;
+  }
+  
+  .step-container.reverse {
+    flex-direction: row-reverse;
+  }
+  
+  .step-description {
+    flex: 1;
+    padding: 20px;
+  }
+  
+  .step-image {
+    flex: 1;
+    text-align: center;
+  }
+  
+  .step-image img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+  }

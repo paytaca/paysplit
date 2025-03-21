@@ -7,10 +7,16 @@
       <img height="32px" class="paytaca-paysplit-title" src="src/assets/paytaca-paysplit-title.png" alt="paytaca-paysplit-title.png" />
       
     </q-toolbar-title>
-
+    <q-btn flat dense class="toolbar-btn-home" label="Home" @click="goToHome()" />
     <q-btn flat dense class="toolbar-btn" label="Get Started" @click="getStarted()" />
+    <q-btn flat dense class="toolbar-btn-how-it-works" label="How it Works" @click="goToHowItWorks()" />
+    
   </q-toolbar>
 </q-header>
+
+  <q-page-container>
+    <router-view />
+  </q-page-container>
 
 <q-dialog v-model="getStartedDialog">
   <q-card class="floating-dialog qr-q-card">
@@ -291,7 +297,7 @@
 
 
     <q-page-container>
-      <router-view />
+    
     </q-page-container>
   </q-layout>
 </template>
@@ -371,6 +377,12 @@
         
         this.getStartedDialog = !this.getStartedDialog; 
         this.retrieveAddress();
+      },
+      goToHome(){
+        this.$router.push('/');
+      },
+      goToHowItWorks(){
+        this.$router.push('/how-it-works');
       },
       async pasteAddress(){
           try {
@@ -990,7 +1002,7 @@
     },
 
 
-    },
+    }
 
   };
 </script>

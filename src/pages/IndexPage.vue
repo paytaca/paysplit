@@ -43,12 +43,12 @@
       </footer>
     </q-page>
 
-  
+
 </template>
 
 <script>
 import flashm from 'src/assets/flashm.png'
-import "src/css/index-page.css";
+import "src/css/index-page.scss";
 
 export default {
   name: 'LandingPage',

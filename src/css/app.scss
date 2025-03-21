@@ -531,16 +531,15 @@ input[type="number"]::-webkit-outer-spin-button {
   top: 54px; /* Aligns with header */
   right: 2px;
   height: fit-content;
-  background-color: $dialog-bg-color !important;
-  //background-image: url('assets/bitcoin-logo-dark-transparent.png') !important;
+  background-color: $dialog-bg-color;
+  background-image: url('assets/dialog-bg-new.png') !important;
   background-position: center;
-  background-position-y: 80px;
   background-repeat: no-repeat;
-  background-size: contain;
-  //box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
+  background-size: cover;
+  background-position-x: -4px;
+  box-shadow: -2px 2px 2px 2px rgba(0, 0, 0, 0.2);
   border-radius: 0; /* Remove rounded edges */
   overflow-x: hidden;
-
   transform-origin: top right;
   transform: scale(1.2);
 }

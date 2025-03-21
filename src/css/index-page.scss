@@ -18,7 +18,7 @@ body{
     align-items: center;
     justify-content: space-between;
     gap: 0px;
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: $banner-color;
     padding: 80px 100px;
     transform: translateY(-14px);
     margin: 0 20px;
@@ -28,7 +28,7 @@ body{
   h1 {
     font-size: 40px;
     font-weight: 700;
-    color: white;
+    color: $h1-white;
     line-height: 1.3;
     max-width: 600px;
     margin-top: 0;
@@ -51,7 +51,6 @@ body{
     border-radius: 8px;
     font-weight: bold;
     margin-top: 20px;
-  
     transition: background-color 0.3s ease-in-out;
   }
   

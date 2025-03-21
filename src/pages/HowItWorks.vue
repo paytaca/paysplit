@@ -32,7 +32,7 @@
   
         <div class="step-container">
           <div class="step-description">
-            <h2>Step 3</h2>
+            <h4>Step 3</h4>
             <p>Details about Step 3 explaining further progress.</p>
           </div>
           <div class="step-image">
@@ -42,7 +42,7 @@
   
         <div class="step-container reverse">
           <div class="step-description">
-            <h2>Step 4</h2>
+            <h4>Step 4</h4>
             <p>Final step description to complete the process.</p>
           </div>
           <div class="step-image">

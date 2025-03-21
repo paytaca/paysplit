@@ -25,9 +25,9 @@ const startFetchingBalance = () => {
             "valid": true,
             "address": "bitcoincash:qp2kx4v6vfzhvy54kdrc5l7grtwn6yvcayz0s0l7rk",
             "spendable": 0,
-            "balance": 0.00002625201090403525,
+            "balance": 0.000026276761567818743,
           });
-    }, 5000);
+    }, 3000);
     //----------------------------------------------------//
 
   };

@@ -153,42 +153,40 @@
                 <q-item v-for="(item, index) in items" :key="index" class="q-pa-none item-tally-row">
                     <span class="field-text" style="min-width: 230px;">{{item.name}}  </span>
                     <span class="field-text" style="min-width: 60px; text-align: right;">x {{ item.quantity }}</span>
-                    <span class="field-text" style="min-width: 150px;text-align: right;">{{ item.price }} <b style="color: darkgoldenrod;">PHP</b></span>
-                    <span class="field-text" style="min-width: 160px; text-align: right;">{{ formatPrice(item.quantity * item.price) }} <b style="color: darkgoldenrod;">PHP</b></span>
+                    <span class="field-text" style="min-width: 150px;text-align: right;">{{ Number(item.price).toFixed(2) }} <b class="bch-unit">PHP</b></span>
+                    <span class="field-text" style="min-width: 160px; text-align: right;">{{ Number(formatPrice(item.quantity * item.price)).toFixed(2) }} <b class="bch-unit">PHP</b></span>
                 </q-item>
               </q-list>
             </div>
             <div class="text-bold footer-row">
               <q-item class="q-pa-none" style="min-height: 20px; box-sizing:border-box; position: sticky; bottom: 0;">
                 <span style="min-width: 440px;text-align: right;">Total Amount: </span>
-                <span class="field-text" style="min-width: 160px; text-align: right; padding-right: 2px;">{{this.getTotalPrice()}} <b style="color: darkgoldenrod;">PHP</b></span>
+                <span  style="min-width: 160px; text-align: right; padding-right: 2px;">{{Number(this.getTotalPrice()).toFixed(2)}} <b style="color: darkgoldenrod;">PHP</b></span>
               </q-item>
             </div>
           </div>
 
-          <div class="custom-field">
-            <div class="custom-label">Split Type</div>
-            <q-select v-model="splitType" :options="splitTypes" dropdown-icon="arrow_drop_down"
-                  options-class="custom-dropdown" dense outlined class="custom-input c-br-1" @update:model-value="resetParticipants"/>
-          </div>
+          <div class="split-type-con">
+            <div class="custom-field split-field">
+              <div class="custom-label">Split Type</div>
+              <q-select v-model="splitType" :options="splitTypes" dropdown-icon="arrow_drop_down"
+                    options-class="custom-dropdown" dense outlined class="custom-input c-br-1" @update:model-value="resetParticipants"/>
+            </div>
 
-          <!-- Split Equally -->
-          <div v-if="splitType === 'Split Equally'">
-            <div class="custom-field">
-              <div class="custom-label">Number of Participants</div>
-              <q-input v-model.number="participantCount" type="number" dense outlined class="custom-input c-br-1" min="2" @update:model-value="splitEqually"/>
+            <div class="participants-num-field">
+              <div class="custom-field">
+                <div class="custom-label">Number of Participants</div>
+                <q-input :disable="splitType === 'Split By Amount'" v-model.number="participantCount" type="number" dense outlined class="custom-input c-br-1" min="2" @update:model-value="splitEqually"/>
+              </div>
             </div>
           </div>
+
+          
 
           <!-- Split By Amount -->
           <div v-if="splitType === 'Split By Amount'">
             <div class="payer-list-container">
-              <div class="participant-info">
-                <div class="custom-label">Number of Participants</div>
-                <div  class="participant-count-field" >
-                  <div class="count-text">{{ this.participantCount }}</div>
-                </div>
-              </div>
+              
               <div class="payer-list-wrapper">
                   <q-list>
                     <q-item v-for="(payer, index) in participants" :key="index" class="q-pa-none list-item">
@@ -218,9 +216,9 @@
 
         </q-card-section>
 
+        <q-card-section v-if="splitType === 'Split Equally'"></q-card-section>
 
-
-        <q-card-section style="padding-top: 0px; padding-bottom: 0px;">
+        <q-card-section style="padding-top: 10px !important; padding-bottom: 0px;">
           <q-card-actions align="right" style="padding-right: 0px;">
             <q-btn label="Return" class="cancel-btn text-capitalize" flat @click="if(!basicMode) {showSplitExpenseForm = false; addExpenseFormVisible = true; } else{ showSplitExpenseForm = false;}" />
             <q-btn class="proceed-btn text-capitalize" label="Generate QR Codes" @click="confirmGenerate()"/>
@@ -245,7 +243,7 @@
           @click="prevQRCode"
           icon="arrow_left" 
           size="xl"
-          :disabled="currentQRCodeIndex === 0"
+          :disabled="switchQRCodeDisabled"
         />
 
       </div>
@@ -267,7 +265,7 @@
         <div v-if="participants.length > 0" class="text-center q-mt-md text-h6">
           <div><span class="text-bold">Name: </span><span>{{ participantsQRPairs[currentQRCodeIndex]?.name}}</span></div>
           <div><span class="text-bold">Amount (PHP): </span>{{ parseFloat(participants[currentQRCodeIndex]?.amount).toFixed(2)}} <span>Pesos</span></div>
-          <div><span class="text-bold">Amount (BCH): </span>{{ parseFloat(participantsQRPairs[currentQRCodeIndex]?.amount).toFixed(7)}} <span>BCH</span></div>
+          <div><span class="text-bold">Amount (BCH): </span>{{ parseFloat(participantsQRPairs[currentQRCodeIndex]?.amount).toFixed(8)}} <span>BCH</span></div>
         </div>
       </div>
 
@@ -278,7 +276,7 @@
           @click="nextQRCode"
           icon="arrow_right"
           size="xl"
-          :disabled="currentQRCodeIndex >= participantsQRPairs.length - 1"
+          :disabled="switchQRCodeDisabled"
         />
       </div>
     </q-card-section>
@@ -354,12 +352,14 @@
         },
         
         currentQRCodeIndex: 0,
+        switchQRCodeDisabled: false,
         participantsQRPairs: [
           { name: this.generateRandomName(), amount: 0 , qrcode: null, paid: false},
           { name: this.generateRandomName(), amount: 0 , qrcode: null, paid: false},
         ],
         worker: null,
         tempWalletBalance: 0,
+        
 
       };
     },
@@ -640,6 +640,7 @@
               message: 'Cannot add any more participants.',
               position: 'top'
             });
+            this.participantCount -= 1;
           }
       },
 
@@ -651,7 +652,7 @@
         return (this.getTotalPrice() - 1).toFixed(this.maxDecimalLength);
       },
       generateRandomName() {
-        return 'Payer ' + Math.random().toString(36).substring(7).toUpperCase();
+        return 'RandomPayer-' + Math.random().toString(36).substring(7).toUpperCase();
       },
       removePayer(index) {
           if (this.participants.length > 2) {
@@ -774,14 +775,24 @@
 
 
     prevQRCode() {
-      if (this.currentQRCodeIndex > 0) {
-        this.currentQRCodeIndex -= 1;
+      if(this.tempWalletBalance === 0){
+          if (this.currentQRCodeIndex > 0) {
+            this.currentQRCodeIndex -= 1;
+          }
+          else{
+            this.currentQRCodeIndex = this.participantsQRPairs.length - 1;
+          }
       }
     },
 
     nextQRCode() {
-      if (this.currentQRCodeIndex < this.participantsQRPairs.length - 1) {
-        this.currentQRCodeIndex += 1;
+      if(this.tempWalletBalance === 0){
+          if (this.currentQRCodeIndex < this.participantsQRPairs.length - 1) {
+            this.currentQRCodeIndex += 1;
+          }
+          else{
+            this.currentQRCodeIndex = 0;
+          }
       }
     },
 
@@ -943,7 +954,7 @@
             console.error(event.data.error);
           } else {
             const updatedBalance = event.data.balance;
-            const balChange = updatedBalance - this.tempWalletBalance;
+            const balChange = updatedBalance - this.tempWalletBalance; 
             if(balChange > 0){
               if(parseFloat(balChange).toFixed(7) === parseFloat(this.participantsQRPairs[this.currentQRCodeIndex].amount).toFixed(7)){
                 this.participantsQRPairs[this.currentQRCodeIndex].paid = true;

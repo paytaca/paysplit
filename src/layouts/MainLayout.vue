@@ -661,7 +661,7 @@
           (index !== excludeIndex && payer.amount > highest.amount) ? payer : highest, { amount: 0 });
       },
       getMaxAmount() {
-        return (this.getTotalPrice() - 1).toFixed(this.maxDecimalLength);
+        return (this.getTotalPrice() - (1 * (this.participants.length - 1))).toFixed(this.maxDecimalLength);
       },
       generateRandomName() {
         return 'RandomPayer-' + Math.random().toString(36).substring(7).toUpperCase();
@@ -724,9 +724,41 @@
                 payerToAdjust.amount = this.formatPrice(payerToAdjust.amount + difference);
             }
         }
+
+        for (const payer1 of this.participants) {
+          if (payer1.amount >= this.getTotalPrice() - (1 * (this.participants.length - 1))) {
+              payer1.amount = this.getTotalPrice() - (1 * (this.participants.length - 1));
+              for (const payer2 of this.participants) {
+                if (payer2.amount !==  this.getTotalPrice() - (1 * (this.participants.length - 1))) {
+                    payer2.amount = 1;
+                }
+              }
+              this.$q.notify({
+                type: 'negative',
+                message: 'Total value cannot exceed the total amount to pay.',
+                position: 'top'
+              });
+              break; 
+          }
+        }
+
     },
 
     confirmGenerate() {
+      let invSplit = false;
+      for(const payer of this.participants){
+        if(payer.amount <= 0){
+          invSplit = true;
+        }
+      }
+      if(invSplit){
+        this.$q.notify({
+              type: 'negative',
+              message: 'Invalid payment amount allocation!',
+              position: 'top'
+            });
+        return;
+      }
       this.$q.dialog({
         title: 'Confirm',
         message: 'Are you sure you want to proceed? You cannot return.',
@@ -741,7 +773,7 @@
       });
     },
     async generateQRCodes(){
-      //console.log("Total" ,this.amountToSplit);
+      
       if(this.getTotalPrice() && this.getTotalPrice() > 0){
         this.participantsQRPairs = [];
         let amounts = [];

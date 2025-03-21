@@ -3,8 +3,9 @@
     <q-header elevated>
   <q-toolbar>
     <q-toolbar-title>
-      <div class="paytaca-logo-con"></div>
-      <div class="kkb-title">Paysplit</div>
+      <img width="32px" class="paytaca-logo" src="src/assets/favicon.png" alt="paytaca-logo.png" />
+      <img height="32px" class="paytaca-paysplit-title" src="src/assets/paytaca-paysplit-title.png" alt="paytaca-paysplit-title.png" />
+      
     </q-toolbar-title>
 
     <q-btn flat dense class="toolbar-btn" label="Get Started" @click="getStarted()" />

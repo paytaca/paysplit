@@ -37,32 +37,12 @@
   }
   //-----------------------------------
 
-  .paytaca-logo-con{
-    display: inline-block;
-    background-image: url('assets/paytaca_dark.png');
-    background-repeat:no-repeat;
-    background-size:contain;
-    background-position: center;
-    position: relative;
-    top: 4px;
-    left: 4px;
-    min-height: 40px;
-    min-width: 150px;
+  .paytaca-logo{
+    margin-top: 6px;
   }
-  .kkb-title{
-    display: inline-block;
-    font-weight: bold;
-    font-size: 28px;
-    transform: translateY(-5px);
-    top: 0;
-    color: #faefef;
-    font-family:'Trebuchet MS', Arial, sans-serif;
-    padding-left: 10px;
-    padding-top: 0;
-    min-height: 30px;
-    min-width: 100px;
-    cursor: default;
-    text-shadow: 1px 1px 1px rgba(249, 239, 239, 0.171);
+  .paytaca-paysplit-title{
+    transform-origin: bottom left;
+    transform: scale(1.2);
   }
 
   //------------- quick styles ----------

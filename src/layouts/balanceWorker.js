@@ -18,6 +18,8 @@ const startFetchingBalance = () => {
     );
     const data = await response.json();
     self.postMessage(data);*/
+
+    //----------Balance Change simulator --------------//
     setTimeout(() => {
         self.postMessage({
             "valid": true,
@@ -25,7 +27,8 @@ const startFetchingBalance = () => {
             "spendable": 0,
             "balance": 0.00002625201090403525,
           });
-    }, 10000);
+    }, 5000);
+    //----------------------------------------------------//
 
   };
 

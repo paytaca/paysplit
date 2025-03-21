@@ -956,6 +956,7 @@
                     }
                   }
               }
+              this.tempWalletBalance = updatedBalance;
             }
             console.log("Updated Balance:", updatedBalance);
           }

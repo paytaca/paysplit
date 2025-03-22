@@ -44,7 +44,7 @@
     <q-card-section class="reqkkb-container">
       <q-checkbox v-model="rememberMe" class="q-remember-me" label="Remember Address" checked/>
       <q-btn 
-        class="proceed-btn text-capitalize" 
+        class="proceed-btn text-capitalize " 
         label="Request Paysplit" 
         @click="checkAddress()" 
         unelevated 
@@ -225,7 +225,14 @@
         <q-card-section v-if="splitType === 'Split Equally'"></q-card-section>
 
         <q-card-section style="padding-top: 10px !important; padding-bottom: 0px;">
+          
           <q-card-actions align="right" style="padding-right: 0px;">
+            <span class="info-box">
+              <q-icon name="info" color="primary" size="24px">
+                  <q-tooltip>Info</q-tooltip>
+              </q-icon> 
+              <i>A network fee of 0.000015 BCH is equally allocated to all participants.</i>
+            </span>
             <q-btn label="Return" class="cancel-btn text-capitalize" flat @click="if(!basicMode) {showSplitExpenseForm = false; addExpenseFormVisible = true; } else{ showSplitExpenseForm = false;}" />
             <q-btn class="proceed-btn text-capitalize" label="Generate QR Codes" @click="confirmGenerate()"/>
           </q-card-actions>
@@ -236,62 +243,67 @@
 
 
     <q-dialog v-model="showQRCodes" persistent>
-  <q-card class="q-pa-md kkb-forms qrcode-form">
-    <q-card-section>
-      <div class="text-h6 text-bold">Payment QR Code</div>
-    </q-card-section>
+      <q-card class="q-pa-md kkb-forms qrcode-form">
+        <q-card-section class="qrcode-form-title-con">
+          <div class="text-h6 text-bold">Payment QR Code</div>
+        </q-card-section>
 
-    <q-card-section class="q-pa-md flex items-center qrcode-pay-detail-con">
-      <!-- Left Icon Button -->
-      <div class="left-container">
-        <q-btn 
-          flat dense class="stretch-y-arrow"
-          @click="prevQRCode"
-          icon="arrow_left" 
-          size="xl"
-          :disabled="switchQRCodeDisabled"
-        />
+        <q-card-section class="q-pa-md flex items-center qrcode-pay-detail-con">
+          <div class="left-container">
+            <div class="wallet-info">
+              <span class="wallet-address"><b>Wallet Public Address:</b> <span class="white-text">{{this.bitcoinCashAddress.replace(/^bitcoincash:/, '').slice(0, 20) + "..." + this.bitcoinCashAddress.replace(/^bitcoincash:/, '').slice(-10) }}</span></span><br>
+              <span class="wallet-balance"><b>Wallet balance (BCH) :</b> <span class="white-text">{{ this.tempWalletBalance}}</span> <span class="amt-unit">BCH</span></span><br>
+              <span class="wallet-balance"><b>Wallet balance (PHP) :</b> <span class="white-text">{{ Number(this.tempWalletBalancePHP).toFixed(2)}}</span> <span class="amt-unit">PHP</span></span>
+            </div>
+            <div class="payer-checklist-con">
+                  <div class="header-row text-bold">
+                    <q-item class="q-pa-none" style="min-height: 20px; box-sizing:border-box;">
+                      <span  style="text-align: left" class="p-name-head">Payer Name</span>
+                      <span  style="text-align: right;">Amount (BCH)</span>
+                      <span  style="text-align: right;">Paid  &nbsp;</span>
+                    </q-item>
+                  </div>
+                  <div class="payer-checklist">
+                      <q-list v-for="(payer, index) in participantsQRPairs" :key="index">
+                        <q-item class="q-pa-none" style="min-height: 20px; box-sizing:border-box;">
+                          <span  style="text-align: left" class="p-name"><b>{{ payer.name }}</b></span>
+                          <span  style="text-align: right;">{{ Number(payer.amount).toFixed(8) }}<div style="display:inline;" class="bch-unit"> BCH</div></span>
+                          <span  style="text-align: right;">
+                            <q-icon v-if="payer.paid" name="check" size="18px" class="paid-check" />
+                            <div style="display:inline;" v-else><i>Pending</i></div> 
+                          </span>
+                        </q-item>
+                      </q-list>
+                  </div>
+                    
+            </div>
+            
+          </div>
+          <div class="right-container flex flex-column items-center">
+            <div v-if="participantsQRPairs[currentQRCodeIndex]?.paid" class="paid-stamp-bg">
+              <div class="paid-stamp"></div>
+            </div>
+            <img
+              v-if="participantsQRPairs.length > 0"
+              :src="participantsQRPairs[currentQRCodeIndex].qrcode"
+              alt="Payment QR Code"
+              class="qrcode-img-large"
+            />
+            <p v-else class="text-grey">Loading QR Code...</p>
+            <div v-if="participants.length > 0" class="text-center q-mt-md text-h6">
+              <div><span class="text-bold">Name: </span><span>{{ participantsQRPairs[currentQRCodeIndex]?.name}}</span></div>
+              <div><span class="text-bold">Amount (PHP): </span>{{ parseFloat(participants[currentQRCodeIndex]?.amount).toFixed(2)}} <span class="amt-unit">Pesos</span></div>
+              <div><span class="text-bold">Amount (BCH): </span>{{ parseFloat(participantsQRPairs[currentQRCodeIndex]?.amount).toFixed(8)}} <span class="amt-unit">BCH</span></div>
+            </div>
+          </div>
 
-      </div>
+        </q-card-section>
 
-      <!-- Center Container -->
-      <div class="center-container flex flex-column items-center">
-        <div v-if="participantsQRPairs[currentQRCodeIndex]?.paid" class="paid-stamp-bg">
-          <div class="paid-stamp"></div>
-        </div>
-        <img
-          v-if="participantsQRPairs.length > 0"
-          :src="participantsQRPairs[currentQRCodeIndex].qrcode"
-          alt="Payment QR Code"
-          class="qrcode-img-large"
-        />
-        <p v-else class="text-grey">Loading QR Code...</p>
-
-        <!-- Payer Name & Amount under QR Code -->
-        <div v-if="participants.length > 0" class="text-center q-mt-md text-h6">
-          <div><span class="text-bold">Name: </span><span>{{ participantsQRPairs[currentQRCodeIndex]?.name}}</span></div>
-          <div><span class="text-bold">Amount (PHP): </span>{{ parseFloat(participants[currentQRCodeIndex]?.amount).toFixed(2)}} <span>Pesos</span></div>
-          <div><span class="text-bold">Amount (BCH): </span>{{ parseFloat(participantsQRPairs[currentQRCodeIndex]?.amount).toFixed(8)}} <span>BCH</span></div>
-        </div>
-      </div>
-
-      <!-- Right Icon Button -->
-      <div class="right-container">
-        <q-btn 
-          flat dense class="stretch-y-arrow"
-          @click="nextQRCode"
-          icon="arrow_right"
-          size="xl"
-          :disabled="switchQRCodeDisabled"
-        />
-      </div>
-    </q-card-section>
-
-    <q-card-actions align="right">
-      <q-btn label="Complete" color="primary" @click="completePaysplit()" />
-    </q-card-actions>
-  </q-card>
-</q-dialog>
+        <q-card-actions align="right">
+          <q-btn label="Finish" :disable="!isPaymentFull()" class="finish-btn" @click="completePaysplit()" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
 
 
 
@@ -364,7 +376,9 @@
           { name: this.generateRandomName(), amount: 0 , qrcode: null, paid: false},
         ],
         worker: null,
+        bchPesoPrice: null,
         tempWalletBalance: 0,
+        tempWalletBalancePHP: 0,
         
 
       };
@@ -396,12 +410,15 @@
       },
       saveInitiatorAddress(){
           if(this.rememberMe){
-            localStorage.setItem('bchpadd', this.bchAddress);
-            this.$q.notify({
-              type: 'positive',
-              message: 'Public address saved!',
-              position: 'top'
-            });
+            const curSavedAdd = localStorage.getItem('bchpadd');
+            if(!(this.bchAddress === curSavedAdd)){
+              localStorage.setItem('bchpadd', this.bchAddress);
+              this.$q.notify({
+                type: 'positive',
+                message: 'Public address saved!',
+                position: 'top'
+              });
+            }
           }
           else{
             localStorage.removeItem('bchpadd');
@@ -644,7 +661,6 @@
               }
               highestPayer.amount = updatedHighestAmount; 
               this.participants.push({ name: this.generateRandomName(), amount: newParticipantAmount });
-              this.adjustAmountsIfMismatch();
           }
           else{
             this.$q.notify({
@@ -759,34 +775,26 @@
             });
         return;
       }
-      this.$q.dialog({
-        title: 'Confirm',
-        message: 'Are you sure you want to proceed? You cannot return.',
-        cancel: true, // Show the cancel button
-        persistent: true, // Prevent closing by clicking outside
-        class: "confirm-dialog"
-      }).onOk(() => {
-        this.generateQRCodes();
-        this.showSplitExpenseForm = false;
-      }).onCancel(() => {
-        //--
+      this.$q.loading.show({
+        message: "Processing...",
+        spinnerColor: "primary",
+        backgroundColor: "black",
       });
+      this.generateQRCodes();
+      this.showSplitExpenseForm = false;
+      setTimeout(() => {
+        this.$q.loading.hide();
+      }, 1000);
     },
+
+
     async generateQRCodes(){
       
       if(this.getTotalPrice() && this.getTotalPrice() > 0){
         this.participantsQRPairs = [];
         let amounts = [];
-        let bchPesoPrice;
-        try {
-          const response = await axios.get('https://watchtower.cash/api/bch-prices/?currencies=php');
-          bchPesoPrice = response.data[0].price_value; 
-          console.log("PriceBCH: ", bchPesoPrice);
-        } catch (err) {
-          //error.value = 'Failed to fetch BCH price';
-          console.error(err);
-        }
-        if(!bchPesoPrice && bchPesoPrice == 0){
+        this.bchPesoPrice = await this.getBCHPricePHP();
+        if(!this.bchPesoPrice || this.bchPesoPrice == 0){
             this.$q.notify({
               type: 'negative',
               message: 'Error Occurred! Cannot fetch BCH price.',
@@ -794,9 +802,11 @@
             });
            return;
         }
+        
+
         this.participants.forEach(payer => {
           //console.log("1 PHP = ", (1/bchPesoPrice), "Res: ", payer.amount*(1/bchPesoPrice));
-          amounts.push(payer.amount*(1/bchPesoPrice));
+          amounts.push((payer.amount*(1/this.bchPesoPrice)) + (0.000015/this.participantCount));
         });
         //console.log("Amts: ", amounts);
         this.paymentAmounts = amounts;
@@ -817,31 +827,12 @@
       
     },
 
-
-    prevQRCode() {
-      if(this.tempWalletBalance === 0){
-          if (this.currentQRCodeIndex > 0) {
-            this.currentQRCodeIndex -= 1;
-          }
-          else{
-            this.currentQRCodeIndex = this.participantsQRPairs.length - 1;
-          }
-      }
-    },
-
-    nextQRCode() {
-      if(this.tempWalletBalance === 0){
-          if (this.currentQRCodeIndex < this.participantsQRPairs.length - 1) {
-            this.currentQRCodeIndex += 1;
-          }
-          else{
-            this.currentQRCodeIndex = 0;
-          }
-      }
-    },
-
     completePaysplit(){
         //----
+    },
+
+    isPaymentFull() {
+      return !this.participantsQRPairs.some(payer => payer.paid === false);
     },
 
 
@@ -1000,18 +991,21 @@
             const updatedBalance = event.data.balance;
             const balChange = updatedBalance - this.tempWalletBalance; 
             if(balChange > 0){
-              if(parseFloat(balChange).toFixed(7) === parseFloat(this.participantsQRPairs[this.currentQRCodeIndex].amount).toFixed(7)){
-                this.participantsQRPairs[this.currentQRCodeIndex].paid = true;
-              }
-              else{ //countermeasure
-                  for(var i = 0; i < this.participantsQRPairs.length; i++){
-                    if(parseFloat(balChange).toFixed(7) === parseFloat(this.participantsQRPairs[i].amount).toFixed(7)){
-                      this.participantsQRPairs[i].paid = true;
-                      break;
-                    }
-                  }
-              }
+              this.participantsQRPairs[this.currentQRCodeIndex].paid = true;
               this.tempWalletBalance = updatedBalance;
+              this.tempWalletBalancePHP = this.tempWalletBalance * this.bchPesoPrice;
+              setTimeout(() => {
+                if(!this.isPaymentFull()){
+                  console.log("Payment not full");
+                  if(this.currentQRCodeIndex < this.participantsQRPairs.length){
+                    this.currentQRCodeIndex += 1;
+                  }
+                  else{
+                    this.currentQRCodeIndex = 0;
+                  }
+                }
+              }, 2000);
+                  
             }
             console.log("Updated Balance:", updatedBalance);
           }
@@ -1031,6 +1025,19 @@
         this.worker.terminate();
         this.worker = null;
       }
+    },
+
+    async getBCHPricePHP(){
+      let bchPesoPrice;
+      try {
+        const response = await axios.get('https://watchtower.cash/api/bch-prices/?currencies=php');
+        bchPesoPrice = response.data[0].price_value; 
+        console.log("PriceBCH: ", bchPesoPrice);
+      } catch (err) {
+        //error.value = 'Failed to fetch BCH price';
+        console.error(err);
+      }
+      return bchPesoPrice;
     },
 
 

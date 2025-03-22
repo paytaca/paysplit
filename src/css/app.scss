@@ -45,59 +45,13 @@
     transform: scale(1.2);
   }
 
-  //------------- quick styles ----------
-  .smaller{
-    font-size: smaller;
-  }
-  .small{
-    font-size: small;
-  }
-  .x-small-x{
-    font-size: x-small;
-  }
-  .xx-small{
-    font-size: xx-small;
-  }
-  .medium{
-    font-size: medium;
-  }
-  .large{
-    font-size: large;
-  }
-  .x-large{
-    font-size: x-large;
-  }
-  .xx-large{
-    font-size: xx-large;
-  }
-  .padding-0{
-    padding: 0;
-  }
-  .padding-thin{
-    padding: 2px;
-  }
-  .v-padding-0{
-    padding-top: 0;
-    padding-bottom: 0;
-  }
-  .v-padding-thin{
-    padding-top: 2px;
-    padding-bottom: 2px;
-  }
-  .margin-0{
-    margin: 0;
-  }
-  .rounded-corners-1{
-    border-radius: 4px;
-  }
-  .rounded-corners-2{
-    border-radius: 18px;
-  }
+
 
   .q-dialog__inner {
     position: fixed !important;
   }
-  
+
+
 
 //--------- for dropdown menu items --------------------
 .q-menu .q-item {
@@ -550,7 +504,7 @@ input[type="number"]::-webkit-outer-spin-button {
   border-radius: 0; /* Remove rounded edges */
   overflow-x: hidden;
   transform-origin: top right;
-  transform: scale(1.2);
+  transform: scale(1.05);
 }
 
 
@@ -678,6 +632,7 @@ input[type="number"]::-webkit-outer-spin-button {
   font-size: smaller;
 }
 
+
 .qr-q-card {
   max-height: 100vh; 
   overflow: hidden;
@@ -685,9 +640,11 @@ input[type="number"]::-webkit-outer-spin-button {
 
 .reqkkb-container{
   text-align: center;
-  .q-btn span span{
-    font-size: small;
-  }
+  .q-btn{
+    span span{
+      font-size: small;
+    }
+  } 
 }
 
 /*------------------------------------------------------------------------------------*/
@@ -695,9 +652,10 @@ input[type="number"]::-webkit-outer-spin-button {
   position: absolute;
   background-color: rgba(255, 255, 255, 0.45);
   z-index: 10000;
-  width: 200px; /* Adjust as needed */
-  height: 200px;
-  margin: 10px auto;
+  width: 190px; /* Adjust as needed */
+  height: 190px;
+  right: 22px;
+  top: 22px;
   .paid-stamp{
     transform-origin: center;
     transform:  rotate(-30deg);;
@@ -711,34 +669,6 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 
-.left-container,
-.right-container {
-  display: flex;
-  flex-direction: column;
-}
-
-.right-container{
-  margin-right: 60px;
-  margin-bottom: 80px;
-}
-
-.left-container{
-  margin-left: 81px;
-  margin-bottom: 80px;
-}
-
-.left-container, .right-container {
-  display: flex;
-  align-items: center;
-  .q-btn span i{
-    transform-origin: center;
-    transform: scale(1.7);
-    color:#2e2e2e;
-    ;
-  }
-}
-
-
 .text-center.q-mt-md.text-h6{
   width: fit-content;
   font-size: small;
@@ -746,38 +676,141 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 .qrcode-img-large {
-  width: 200px; /* Adjust as needed */
+  width: 200px; 
   height: 200px;
-
-  margin: 10px 0;
-  object-fit: contain; /* Prevents stretching */
-}
-
-
-.stretch-y-arrow{
-  transform-origin: center;
-  transform: scaleY(2.0);
-  color: $primary-dark-bg;
+  margin: 0;
+  object-fit: contain; 
 }
 
 .qrcode-form{
   overflow: hidden;
+  //background-position-y: -250px;
+  .qrcode-form-title-con{
+    box-sizing: border-box;
+    padding-bottom: 0;
+    padding-top: 0;
+  }
 }
 
-//---------------//-////------------///
+.qrcode-pay-detail-con {
+  display: grid;
+  grid-template-columns: auto 200px; 
+  align-items: stretch; 
+  height: 100%;
+}
 
-.center-container {
-  min-width: 200px;
+.left-container {
   display: block; 
-  margin: auto 0;
+  padding-right: 16px;
+  box-sizing: border-box;
+
+  .wallet-info{
+    color: $header-text-dark;
+    background-color: $primary-headers-bg;
+    border-radius: 4px;
+    padding: 10px;
+    box-sizing: border-box;
+    span .white-text{
+      color: #a4a3a3;
+    }
+    span .amt-unit{
+      color: darkgoldenrod;
+    }
+  }
+  .payer-checklist-con{
+    display: block;
+    padding: 0px;
+    margin-top: 10px;
+    box-sizing: border-box;
+    height: 65%;
+    .header-row.text-bold{
+        display: flex;
+        padding-top: 6px;
+        padding-bottom: 6px;
+        .q-item{
+          flex: 1;
+          display: flex;
+          span{
+            flex: 1;
+            font-size: small;
+          }
+          span.p-name-head{
+            flex: 2;
+          }
+        }
+    }
+    .payer-checklist{
+      display: block;
+      padding-top: 6px;
+      padding-bottom: 6px;
+      height: 85%;
+      background-color: $transparent-dark-bg;
+      border: 1px solid $primary-dark-border;
+      border-bottom-right-radius: 4px;
+      border-bottom-left-radius: 4px;
+      overflow-y: scroll;
+      .q-list{
+        padding-left: 10px;
+        padding-right: 10px;
+        .q-item{
+          flex: 1;
+          padding: 1px;
+          display: flex;
+          padding: auto 8px;
+          span{
+            flex: 1;
+            font-size: small;
+          }
+          span.p-name{
+            flex: 2;
+          }
+          span .amt-unit{
+            color: darkgoldenrod;
+          }
+          span .paid-check{
+              color: darkgreen;
+              size: 18px;
+          }
+        }
+      }
+      
+  }
+  }
+}
+
+.right-container {
+  display: block; 
+  width: 200px; 
+}
+
+.finish-btn{
+  color: $text-white-grey;
+  background-color: $primary-imp-action-bg;
+  font-weight: bold;
+  width: 200px;
+  margin-right: 8px;
 }
 
 
-
-.stretch-y-arrow {
-  min-height: 50px; /* Ensures buttons remain large */
-}
-
-.qrcode-pay-detail-con{
-  padding-left: 97px;
+.info-box{
+  display: flex;
+  width: 255px;
+  margin-right: 100px;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  color: $input-text-grey;
+  transform: translateX(-6px);
+  font-size: smaller;
+  border: 1px dashed $primary-dark-border;
+  border-radius: 4px;
+  background-color: $transparent-x-darker-bg;
+  transform: translateX(-14px);
+  .q-icon{
+    transform-origin: center;
+    transform: scale(1.2) translateX(4px);
+  }
+  i{
+    transform: translateX(8px);
+  }
 }

@@ -44,16 +44,10 @@ export default defineConfig((ctx) => {
       },
       vite: {
         build: {
-          target: 'esnext', // or 'es2022'
+          target: 'es2022'
         },
       },
 
-      /*meta: {
-        title: 'Paytaca Payspilt',
-        meta: [
-          { name: 'viewport', content: 'width=600, initial-scale=1' }
-        ]
-      },*/
 
 
       vueRouterMode: 'hash', // available values: 'hash', 'history'

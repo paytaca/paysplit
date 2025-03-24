@@ -285,7 +285,7 @@
             </div>
             <img
               v-if="participantsQRPairs.length > 0"
-              :src="participantsQRPairs[currentQRCodeIndex].qrcode"
+              :src="participantsQRPairs[currentQRCodeIndex]?.qrcode"
               alt="Payment QR Code"
               class="qrcode-img-large"
             />
@@ -322,6 +322,10 @@
   import CryptoJS from "crypto-js";
   import QRCode from "qrcode";
   import axios from 'axios';
+  
+  import Watchtower from 'watchtower-cash-js';
+  const watchtower = new Watchtower();
+  console.log(watchtower);
 
   export default {
     components: { QrcodeStream },
@@ -385,6 +389,57 @@
     },
     mounted(){
       window.getStarted = this.getStarted;
+      
+/*
+        localStorage.removeItem('interruptDataBackup');
+        localStorage.removeItem('interruptInitiatorAddress');
+        localStorage.removeItem('interruptTempWalletInf');
+        localStorage.removeItem('interruptAmountAndPrinceCheckpoint');
+      
+*/
+
+      try {
+        const savedBackupData = JSON.parse(localStorage.getItem('interruptDataBackup')) || [];
+        const savedInitiatorAddress = localStorage.getItem('interruptInitiatorAddress');
+        const savedTempWalletInf = JSON.parse(localStorage.getItem('interruptTempWalletInf')) || [];
+        const savedAmountAndPrinceCheckpoint = JSON.parse(localStorage.getItem('interruptAmountAndPrinceCheckpoint')) || [];
+        if (savedBackupData.length > 0) {
+          this.$q.loading.show({
+            message: "Recovering Interrupted Transacton...",
+            spinnerColor: "primary",
+            backgroundColor: "black",
+          });
+          
+          this.bchAddress = savedInitiatorAddress;
+          this.participantsQRPairs = savedBackupData;
+          this.participantCount = savedBackupData.length;
+          this.privateKeyWIF = savedTempWalletInf.privateKeyWIF;
+          this.publicKeyHex = savedTempWalletInf.publicKeyHex;
+          this.bitcoinCashAddress = savedTempWalletInf.bitcoinCashAddress;
+          this.tempWalletBalance = savedAmountAndPrinceCheckpoint.bchBalance;
+          this.bchPesoPrice = savedAmountAndPrinceCheckpoint.bchPesoPrice;
+          this.tempWalletBalancePHP = this.tempWalletBalance * this.bchPesoPrice;
+
+          for(let i = 0; i < this.participantCount; i++){
+            if(this.participantsQRPairs[i].paid === false){
+              this.currentQRCodeIndex = i;
+              break;
+            }
+          }
+          //this.currentQRCodeIndex = savedAmountAndPrinceCheckpoint.lastPayerIndex;
+
+          this.startBalanceWorker();
+          setTimeout(() => {
+            this.showQRCodes = true;
+            this.$q.loading.hide();
+          }, 2000);
+        } else {
+          console.log("No interrupted transaction found.");
+        }
+
+      } catch (error) {
+        console.error("Error parsing backup data:", error);
+      }
     },
     methods: {
       getStarted(){
@@ -783,8 +838,9 @@
       this.generateQRCodes();
       this.showSplitExpenseForm = false;
       setTimeout(() => {
+        this.showQRCodes = true;
         this.$q.loading.hide();
-      }, 1000);
+      }, 2000);
     },
 
 
@@ -802,8 +858,6 @@
             });
            return;
         }
-        
-
         this.participants.forEach(payer => {
           //console.log("1 PHP = ", (1/bchPesoPrice), "Res: ", payer.amount*(1/bchPesoPrice));
           amounts.push((payer.amount*(1/this.bchPesoPrice)) + (0.000015/this.participantCount));
@@ -812,9 +866,8 @@
         this.paymentAmounts = amounts;
         //console.log("Amots: ", this.paymentAmounts);
         await this.generateNewKeys();
-
-        console.log("t-ADDRESS: ", this.bitcoinCashAddress);
-        this.showQRCodes = true;
+        //console.log("t-ADDRESS: ", this.bitcoinCashAddress);
+        
         this.startBalanceWorker();
       }
       else{
@@ -828,7 +881,45 @@
     },
 
     completePaysplit(){
-        //----
+      //const watchtower = new Watchtower()
+      /*
+      const data = {
+        sender: {
+          address: this.bitcoinCashAddress,
+          wif: this.privateKeyWIF,
+        },
+        recipients: [
+          {
+            address: this.bchAddress,
+            amount: this.tempWalletBalance,
+          }
+          // <-- You can add more recipients into this array
+        ],
+        //Fee funder (Optional) <-- if feeFunder is set, fees will be paid by this address
+        /*feeFunder: {
+          address: 'bitcoincash:qr5ntfv5j7308fsuh08sqxkgp9m87cqqtq3rvgnma9',
+          wif: 'YYY'  // <-- private key of the feeFunder address
+        },
+        // Change address (Optional) <-- set a custom change address
+        changeAddress: 'bitcoincash:qzrhqu0jqslzt9kppw8gtwlkhqwnfrn2dc63yv2saj'
+        // Data (Optional) <-- embed some string data in OP_RETURN
+        data: 'Hello world!',
+        // Broadcast (Optional) <-- Broadcast or just return raw transaction hex
+        broadcast: true  // true by default
+      };
+
+      watchtower.BCH.send(data).then(function (result) {
+        if (result.success) {
+          // Your logic here when send transaction is successful
+          console.log(result.txid)
+
+          // or if broadcast is set to false, you can just get the raw transaction hex
+          console.log(result.transaction)
+        } else {
+          // Your logic here when send transaction fails
+          console.log(result.error)
+        }
+      });*/
     },
 
     isPaymentFull() {
@@ -994,9 +1085,29 @@
               this.participantsQRPairs[this.currentQRCodeIndex].paid = true;
               this.tempWalletBalance = updatedBalance;
               this.tempWalletBalancePHP = this.tempWalletBalance * this.bchPesoPrice;
+              const backup = localStorage.getItem('interruptDataBackup');
+              const currentData = JSON.stringify(this.participantsQRPairs);  
+              if (backup !== currentData) {
+                  localStorage.setItem('interruptDataBackup', currentData);
+                  localStorage.setItem('interruptInitiatorAddress', this.bchAddress);
+                  const walletInf = {
+                    privateKeyWIF : this.privateKeyWIF,
+                    publicKeyHex: this.publicKeyHex,
+                    bitcoinCashAddress: this.bitcoinCashAddress,
+                  };
+                  localStorage.setItem('interruptTempWalletInf', JSON.stringify(walletInf));
+                  const amountAndPrinceCheckpoint = {
+                    bchBalance: this.tempWalletBalance,
+                    bchPesoPrice: this.bchPesoPrice,
+                    lastPayerIndex: this.currentQRCodeIndex,
+                  }
+                  localStorage.setItem('interruptAmountAndPrinceCheckpoint', JSON.stringify(amountAndPrinceCheckpoint));
+              } 
+              const savedData = JSON.parse(localStorage.getItem('interruptDataBackup'));
+              console.log("Saved Data:", savedData);
+
               setTimeout(() => {
                 if(!this.isPaymentFull()){
-                  console.log("Payment not full");
                   if(this.currentQRCodeIndex < this.participantsQRPairs.length){
                     this.currentQRCodeIndex += 1;
                   }
@@ -1041,7 +1152,8 @@
     },
 
 
-    }
+    },
+  
 
   };
 </script>

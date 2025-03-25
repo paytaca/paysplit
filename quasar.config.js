@@ -36,6 +36,7 @@ export default defineConfig((ctx) => {
       'material-icons', // optional, you are not bound to it
     ],
 
+
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-file#build
     build: {
       target: {
@@ -44,7 +45,7 @@ export default defineConfig((ctx) => {
       },
       vite: {
         build: {
-          target: 'es2022'
+          target: 'esnext'
         },
       },
 

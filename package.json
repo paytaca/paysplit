@@ -14,10 +14,14 @@
     "postinstall": "quasar prepare"
   },
   "dependencies": {
-    "@bitauth/libauth": "^2.1.0",
+    "@bitauth/libauth": "^1.19.1",
+    "@psf/bch-js": "^6.8.0",
     "@quasar/extras": "^1.16.4",
     "axios": "^1.2.1",
+    "bitbox-sdk": "^8.11.2",
+    "bitcore-lib-cash": "^10.8.0",
     "bs58": "^6.0.0",
+    "bs58check": "^4.0.0",
     "cashaddrjs": "^0.4.4",
     "crypto-js": "^4.2.0",
     "qrcode": "^1.5.4",

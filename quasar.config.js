@@ -3,6 +3,8 @@
 
 import { defineConfig } from '#q-app/wrappers'
 import { fileURLToPath } from 'node:url'
+import { nodePolyfills }  from 'vite-plugin-node-polyfills';
+
 
 export default defineConfig((ctx) => {
   return {
@@ -47,7 +49,33 @@ export default defineConfig((ctx) => {
         build: {
           target: 'esnext'
         },
+
+        // Add polyfills for Node.js modules
+        resolve: {
+          alias: {
+            stream: 'stream-browserify',
+            util: 'util/',
+            crypto: 'crypto-browserify',
+            buffer: 'buffer',
+            process: 'process/browser',
+          },
+        },
+        optimizeDeps: {
+          include: ['buffer', 'process', 'stream-browserify', 'readable-stream'],
+          esbuildOptions: {
+            define: {
+              global: 'globalThis',
+              'process.env': '{}',
+              'process.version': '"v20.0.0"',
+            },
+          },
+        },
+
+        plugins: [
+          nodePolyfills(),
+        ],
       },
+
 
 
 
@@ -71,6 +99,7 @@ export default defineConfig((ctx) => {
       // viteVuePluginOptions: {},
 
       vitePlugins: [
+        nodePolyfills(),
         ['@intlify/unplugin-vue-i18n/vite', {
           // if you want to use Vue I18n Legacy API, you need to set `compositionOnly: false`
           // compositionOnly: false,
@@ -91,14 +120,17 @@ export default defineConfig((ctx) => {
             useFlatConfig: true
           }
         }, { server: false }]
+
+
       ]
     },
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-file#devserver
     devServer: {
       // https: true,
-      open: true // opens browser window automatically
+      open: true, // opens browser window automatically
     },
+
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-file#framework
     framework: {

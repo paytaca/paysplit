@@ -13,25 +13,13 @@ const startFetchingBalance = () => {
 
   const fetchBalance = async () => {
 
-    const response = await fetch(
-    `https://watchtower.cash/api/balance/bch/${encodeURIComponent(address)}`
-    );
+    const response = await fetch(`https://api.haskoin.com/bch/address/${encodeURIComponent(address)}/balance`);
     const data = await response.json();
+    //console.log(data);
     self.postMessage(data);
-
-    //----------Balance Change simulator --------------//
-    /*setTimeout(() => {
-        self.postMessage({
-            "valid": true,
-            "address": "bitcoincash:qp2kx4v6vfzhvy54kdrc5l7grtwn6yvcayz0s0l7rk",
-            "spendable": 0,
-            "balance": 2* 0.00002686200718290072,
-          });
-    }, 3000);*/
-    //----------------------------------------------------//
 
   };
 
   fetchBalance();
-  setInterval(fetchBalance, 3000);
+  setInterval(fetchBalance, 2000);
 };

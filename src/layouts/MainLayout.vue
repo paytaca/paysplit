@@ -333,6 +333,28 @@
     </q-dialog>
 
 
+     <q-dialog v-model="transactionEndDialog">
+        <q-card class="txid-dialog-card">
+          <q-card-section>
+            <div class="text-h6 text-bold">Transaction Successful!</div>
+          </q-card-section>
+
+          <q-card-section>
+            <q-input class="txid-field"
+              v-model="lasttxid"
+              :disable="true"
+              label="Transaction ID"
+              dense
+              outlined
+            />
+          </q-card-section>
+
+          <q-card-actions class="txid-d-btns" align="right">
+            <q-btn class="proceed-btn text-capitalize" icon="content_copy" @click="copyTxid()" label="Copy" />
+            <q-btn class="text-capitalize" flat color="negative" @click="transactionEndDialog = false" label="Close" />
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
 
 
     <q-page-container>
@@ -345,11 +367,17 @@
 import { QrcodeStream } from "vue-qrcode-reader";
 import * as secp256k1 from "secp256k1";
 import bs58 from "bs58";
-import bs58check from "bs58check";
+//import bs58check from "bs58check";
 import cashaddr from "cashaddrjs";
 import CryptoJS from "crypto-js";
 import QRCode from "qrcode";
 import axios from 'axios';
+import process from 'process';
+import { Buffer } from 'buffer';
+import { copyToClipboard } from "quasar";
+
+window.process = process;
+window.Buffer = Buffer;
 
 
 
@@ -410,20 +438,14 @@ export default {
       bchPesoPrice: null,
       tempWalletBalance: 0,
       tempWalletBalancePHP: 0,
-
+      lasttxid: null,
+      transactionEndDialog: false,
 
     };
   },
   mounted() {
     window.getStarted = this.getStarted;
-
-
-    /*localStorage.removeItem('interruptDataBackup');
-    localStorage.removeItem('interruptInitiatorAddress');
-    localStorage.removeItem('interruptTempWalletInf');
-    localStorage.removeItem('interruptAmountAndPrinceCheckpoint');
-  */
-
+    this.clearBackupData();
 
     try {
       const savedBackupData = JSON.parse(localStorage.getItem('interruptDataBackup')) || [];
@@ -559,10 +581,12 @@ export default {
     },
 
     onSetTotalAmount() {
-      if (this.basicMode && this.amountToSplit && this.amountToSplit > 0) {
-        this.items = [];
-        this.items.push({ name: 'Item Bundle', quantity: 1, price: this.amountToSplit, filteredSuggestions: [] });
-      }
+      if (this.basicMode && this.amountToSplit){
+          if(this.amountToSplit > 0) {
+            this.items = [];
+            this.items.push({ name: 'Item Bundle', quantity: 1, price: this.amountToSplit, filteredSuggestions: [] });
+          }
+      } 
       this.resetParticipants();
     },
 
@@ -851,12 +875,21 @@ export default {
     },
 
     confirmGenerate() {
+      if(this.amountToSplit < 1){
+         this.$q.notify({
+          type: 'negative',
+          message: 'Amount to split is too small!',
+          position: 'top'
+        });
+        return;
+      }
       let invSplit = false;
       for (const payer of this.participants) {
         if (payer.amount <= 0) {
           invSplit = true;
         }
       }
+
       if (invSplit) {
         this.$q.notify({
           type: 'negative',
@@ -875,6 +908,7 @@ export default {
       setTimeout(() => {
         this.showQRCodes = true;
         this.$q.loading.hide();
+
       }, 2000);
     },
 
@@ -916,149 +950,111 @@ export default {
     },
 
 
-
     async completePaysplit() {
+        const { default: BCHJS } = await import('@psf/bch-js');
+        const bchjs = new BCHJS();
+
+        this.$q.loading.show({
+          message: "Finalizing Transaction...",
+          spinnerColor: "primary",
+          backgroundColor: "black",
+        });
         const netfee = 1500;
         let utxos = [];
 
-        // Don't fetch real UTXOs for now
         try {
-          const response = await axios.get(`https://watchtower.cash/api/utxo/bch/${encodeURIComponent(this.bitcoinCashAddress)}/`);
-          utxos = response.data.utxos;
-          console.log("UTXOs: ", utxos);
+          // Fetch UTXOs using bch-js API
+          const utxoResponse = await axios.get(
+            `https://api.fullstack.cash/v5/electrumx/utxos/${this.bitcoinCashAddress}`
+          );
+          utxos = utxoResponse.data.utxos;
+          console.log("UTXOs:", utxos);
         } catch (err) {
-          console.error(err);
+          console.error("Error fetching UTXOs:", err);
+          return;
         }
 
-        // Temporary/example UTXOs
-        utxos = [
-          {
-            txId: "e3c0f3a1b2d4e5f67890123456789abcdef1234567890abcdef1234567890abc",
-            outputIndex: 0,
-            script: "76a91488ac",
-            satoshis: 500000,
-          },
-          {
-            txId: "f4d5e6b7c8a9d0e1f234567890abcdef1234567890abcdef1234567890abcdef",
-            outputIndex: 1,
-            script: "76a91488ac",
-            satoshis: 300000,
-          },
-          {
-            txId: "a1b2c3d4e5f67890123456789abcdef1234567890abcdef1234567890abcdef1",
-            outputIndex: 2,
-            script: "76a91488ac",
-            satoshis: 200000,
-          },
-          {
-            txId: "b2c3d4e5f67890123456789abcdef1234567890abcdef1234567890abcdef124",
-            outputIndex: 0,
-            script: "76a91488ac",
-            satoshis: 100000,
-          },
-        ];
-
-        try {
-          console.log("Building BCH transaction...");
-
-          // Step 1: Convert WIF to Private Key
-          let decodedWIF = bs58check.decode(this.privateKeyWIF);
-          //console.log("decodedWIF: ", decodedWIF);
-
-          let privateKey = decodedWIF.slice(1, -1); // Remove WIF headers
-          //console.log("privateKey: ", privateKey);
-
-          // Step 2: Calculate total balance and set amount to send
-          let totalInput = utxos.reduce((sum, utxo) => sum + utxo.satoshis, 0);
-          //console.log("totalInput: ", totalInput);
-
+     
+          //console.log("Building BCH transaction using bch-js...");
+          
+          // Calculate total input and set amount to send
+          let totalInput = utxos.reduce((sum, utxo) => sum + utxo.value, 0);
           let amountToSend = totalInput - netfee;
-          //console.log("amountToSend: ", amountToSend);
 
           if (amountToSend <= 0) throw new Error("Not enough funds!");
 
-          // Step 3: Build Raw Transaction
-          let rawTx = "02000000"; // Version
-          //console.log("version: ", rawTx);
+          // Create transaction builder
+          let transactionBuilder = new bchjs.TransactionBuilder("mainnet");
 
-          rawTx += utxos.length.toString(16).padStart(2, "0"); // Input count
-          //console.log(utxos.length.toString(16).padStart(2, "0"));
-
+          // Add UTXOs as inputs
           utxos.forEach((utxo) => {
-            //console.log("Original txId: ", utxo.txId);
-            rawTx += utxo.txId.match(/../g).reverse().join(""); // Reverse TXID
-            //console.log("Reversed txId: ", utxo.txId.toLowerCase().match(/../g).reverse().join(""));
-            rawTx += utxo.outputIndex.toString(16).padStart(8, "0"); // Output index
-            //console.log("outputIndex: ", utxo.outputIndex.toString(16).padStart(8, "0"));
-            rawTx += "00"; // Empty scriptSig
-            rawTx += "ffffffff"; // Sequence
+            transactionBuilder.addInput(utxo.tx_hash, utxo.tx_pos);
           });
 
-          rawTx += "01"; // Number of outputs
-          rawTx += amountToSend.toString(16).padStart(16, "0"); // Amount in satoshis
-          //console.log("amount input (f): ", amountToSend.toString(16).padStart(16, "0"));
-          // Convert recipient address to scriptPubKey using the new decodeCashAddress function
-          const { hash } = this.decodeCashAddress(this.bchAddress);
-          //console.log("Hash: ", hash);
-          let scriptPubKey = "76a914" + this.binToHex(hash) + "88ac"; // P2PKH script
-          //console.log("scriptPubKey: ", scriptPubKey);
-          rawTx += scriptPubKey; // Add scriptPubKey to raw transaction
+          // Add output (recipient)
+          let legacyAddress = bchjs.Address.toLegacyAddress(this.bchAddress);
+          transactionBuilder.addOutput(legacyAddress, amountToSend);
 
-          rawTx += "00000000"; // Locktime
+          // Decode WIF to private key
+          const ecPair = bchjs.ECPair.fromWIF(this.privateKeyWIF);
 
-          //console.log("Raw Transaction (Unsigned):", rawTx);
-
-          // Step 4: Sign Each Input
-          for (let i = 0; i < utxos.length; i++) {
-            let utxo = utxos[i];
-
-            // Create Sighash
-            let preimage = rawTx + utxo.script + "01000000"; // SIGHASH_ALL
-            //console.log("preimage (SIGHASH_ALL): ", rawTx + utxo.script + "01000000");
-            let hash1 = await this.sha256(this.hexToBin(preimage));
-            //console.log("hash1: ", hash1);
-            let sighash = await this.sha256(this.hexToBin(hash1));
-            //console.log("sighash: ", sighash);
-
-            // Sign with ECDSA
-            let signature = secp256k1.ecdsaSign(this.hexToBin(sighash), privateKey);
-            //console.log("raw signature: ", this.binToHex(signature.signature));
-            let derSignature = this.binToHex(this.toDER(signature.signature)) + "41"; 
-            //console.log("derSignature: ", derSignature);
-            // Compute correct push opcode for signature (DER sig length + 1 byte for sighash)
-            let sigPushOpcode = (derSignature.length / 2).toString(16).padStart(2, "0"); 
-
-            // Compute correct push opcode for public key (33 bytes for compressed, 65 bytes for uncompressed)
-            //console.log("publicKeyHex: ", this.publicKeyHex);
-            let pubKeyPushOpcode = (this.publicKeyHex.length / 2).toString(16).padStart(2, "0"); 
-            //console.log("pubKeyPushOpcode: ", pubKeyPushOpcode);
-            // Construct the scriptSig
-            let scriptSig = sigPushOpcode + derSignature + pubKeyPushOpcode + this.publicKeyHex;
-            //console.log("scriptSig: ", scriptSig);
-
-            // Inject scriptSig into transaction
-            rawTx = rawTx.replace("00ffffffff", scriptSig + "ffffffff");
-          }
-
-          console.log("Signed Transaction:", rawTx);
-
-          // Don't broadcast for now
-          // Step 5️ Broadcast Transaction
-          let response = await axios.post("https://watchtower.cash/api/broadcast/", {
-              transaction: rawTx
+          // Sign each input
+          utxos.forEach((utxo, index) => {
+            transactionBuilder.sign(
+              index,
+              ecPair,
+              null,
+              transactionBuilder.hashTypes.SIGHASH_ALL,
+              utxo.value
+            );
           });
 
-          console.log("Transaction Broadcasted Result:", response.data);
-        } catch (error) {
-          console.error("Error:", error.message);
-        }
+          // Build and broadcast transaction
+          const tx = transactionBuilder.build();
+          const txHex = tx.toHex();
+
+          console.log("Signed Transaction:", txHex);
+
+          await this.broadcastTransaction(bchjs, txHex);
+
     },
 
+    async broadcastTransaction(bchjs, txHex) {
+      try {
+        const result = await bchjs.RawTransactions.sendRawTransaction(txHex);
+        console.log("Transaction Broadcasted! TXID:", result);
+        if(/^[a-fA-F0-9]{64}$/.test(result)){
+          this.lasttxid = result;
+          this.$q.loading.hide();
+
+          this.transactionEndDialog = true;
+          
+          this.clearBackupData();
+        }
+      } catch (err) {
+        console.error("Error broadcasting transaction:", err);
+      }
+    },
+
+    clearBackupData(){
+      localStorage.removeItem('interruptDataBackup');
+      localStorage.removeItem('interruptInitiatorAddress');
+      localStorage.removeItem('interruptTempWalletInf');
+      localStorage.removeItem('interruptAmountAndPrinceCheckpoint');
+    },
 
     isPaymentFull() {
       return !this.participantsQRPairs.some(payer => payer.paid === false);
     },
 
+    copyTxid(){
+      copyToClipboard(this.lasttxid).
+        then(() => { 
+          this.$q.notify({ type: "positive", message:"Copied to clipboard!" });
+        }).catch(()=>{ 
+          this.$q.notify({ type: "negative", message: "Failed to copy!" });
+        });
+    },
 
     //-----------important----------------------------------
 
@@ -1138,7 +1134,7 @@ export default {
             qrcode: qrcode1,
             paid: paid,
           });
-          console.log("PAmt: ", this.paymentAmounts[n]);
+          //console.log("PAmt: ", this.paymentAmounts[n]);
           //this.qrCodes.push(qrcode1);
         } catch (error) {
           console.error(`Error generating QR code for ${cleanAddress}:`, error);
@@ -1243,7 +1239,7 @@ export default {
           if (event.data.error) {
             console.error(event.data.error);
           } else {
-            const updatedBalance = event.data.balance;
+            const updatedBalance = event.data.received;
             const balChange = updatedBalance - this.tempWalletBalance;
             if (balChange > 0) {
               this.participantsQRPairs[this.currentQRCodeIndex].paid = true;
@@ -1267,8 +1263,8 @@ export default {
                 }
                 localStorage.setItem('interruptAmountAndPrinceCheckpoint', JSON.stringify(amountAndPrinceCheckpoint));
               }
-              const savedData = JSON.parse(localStorage.getItem('interruptDataBackup'));
-              console.log("Saved Data:", savedData);
+              //const savedData = JSON.parse(localStorage.getItem('interruptDataBackup'));
+              //console.log("Saved Data:", savedData);
 
               setTimeout(() => {
                 if (!this.isPaymentFull()) {
@@ -1282,7 +1278,7 @@ export default {
               }, 2000);
 
             }
-            console.log("Updated Balance:", updatedBalance);
+            //console.log("Updated Balance:", updatedBalance);
           }
         };
 
@@ -1307,7 +1303,7 @@ export default {
       try {
         const response = await axios.get('https://watchtower.cash/api/bch-prices/?currencies=php');
         bchPesoPrice = response.data[0].price_value;
-        console.log("PriceBCH: ", bchPesoPrice);
+        //console.log("PriceBCH: ", bchPesoPrice);
       } catch (err) {
         //error.value = 'Failed to fetch BCH price';
         console.error(err);

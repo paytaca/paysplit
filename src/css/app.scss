@@ -814,3 +814,57 @@ input[type="number"]::-webkit-outer-spin-button {
     transform: translateX(8px);
   }
 }
+
+
+
+//------- for txid dialog --------
+
+.txid-dialog-card{
+  width: 300px; /* Adjust width as needed */
+  position: fixed;
+  height: fit-content;
+  background-color: $dialog-bg-color;
+  background-image: url('assets/dialog-bg-new.png') !important;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  box-shadow: -2px 2px 2px 2px rgba(0, 0, 0, 0.2);
+  border-radius: 0; /* Remove rounded edges */
+  overflow-x: hidden;
+  transform-origin: top right;
+  transform: scale(1.05);
+  .q-card__section{
+      .text-h6.text-bold{
+        padding-left: 8px;
+        font-size: medium;
+        color: $header-text-dark;
+        text-shadow: -1px -1px 0 #aaaaaa,
+        1px -1px 1px #aaaaaa,
+        -1px 1px 1px #aaaaaa,
+        1px 1px 1px #aaaaaa; 
+      }
+    }
+}
+
+.txid-field{
+    flex: 1;
+    padding: 0;
+    border: none;
+    font-size: small;  
+    transform-origin: center;
+    transform: scale(0.9);
+    div div div{
+      div{
+        color: $primary;
+      }
+      input{
+        color:$input-text-grey;
+      }
+    }
+}
+
+.txid-d-btns{
+  transform-origin: top right;
+  transform: scale(0.9);
+}
+

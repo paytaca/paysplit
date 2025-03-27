@@ -5,7 +5,7 @@
         <q-toolbar-title>
           <img width="32px" class="paytaca-logo" src="src/assets/favicon.png" alt="paytaca-logo.png" />
           <img height="32px" class="paytaca-paysplit-title" src="src/assets/paytaca-paysplit-title.png"
-            alt="paytaca-paysplit-title.png" />
+          alt="paytaca-paysplit-title.png" />
 
         </q-toolbar-title>
         <q-btn flat dense class="toolbar-btn-home" label="Home" @click="goToHome()" />
@@ -22,19 +22,15 @@
     <q-dialog v-model="getStartedDialog">
       <q-card class="floating-dialog qr-q-card">
         <q-card-section class="qrcode-wrapper">
-          <qrcode-stream @detect="onQRDecode" @camera-on="onScannerInit" @error="onCameraError" :paused="pauseCam">
+          <qrcode-stream class="qrcode-stream" @detect="onQRDecode" @camera-on="onScannerInit" @error="onCameraError" :paused="pauseCam">
           </qrcode-stream>
 
           <div class="address-input-con">
             <q-input v-model="bchAddress" class="custom-input payer-input" @update:model-value="onManualAdressInput()"
-              label="Your public wallet address" dense outlined></q-input>
+            label="Your public wallet address" dense outlined></q-input>
             <q-btn dense flat @click="pasteAddress" class="paste-btn">
               <q-icon name="fa-solid fa-paste" />
               <q-tooltip>Paste Paytaca Wallet Address</q-tooltip>
-            </q-btn>
-            <q-btn dense flat @click="clearAddress" class="paste-btn">
-              <q-icon name="fa-solid fa-refresh" />
-              <q-tooltip>Clear Address and Re-scan</q-tooltip>
             </q-btn>
           </div>
         </q-card-section>
@@ -42,7 +38,7 @@
         <q-card-section class="reqkkb-container">
           <q-checkbox v-model="rememberMe" class="q-remember-me" label="Remember Address" checked />
           <q-btn class="proceed-btn text-capitalize " label="Request Paysplit" @click="checkAddress()" unelevated
-            rounded color="primary" />
+          rounded color="primary" />
         </q-card-section>
       </q-card>
     </q-dialog>
@@ -54,13 +50,13 @@
         <q-card-section class="add-expense-form-top-sec">
           <div class="text-h6 text-bold">Add Expenses</div>
           <q-checkbox v-model="basicMode" class="basic-mode-toggle" @update:model-value="onUpdateMode()"
-            label="Quick Mode" checked />
+          label="Quick Mode" checked />
         </q-card-section>
         <q-card-section class="q-gutter-md" style="padding-bottom: 6px;">
           <div class="custom-field">
             <div class="custom-label">Category</div>
             <q-select v-model="category" :options="categories" dropdown-icon="arrow_drop_down"
-              options-class="custom-dropdown" dense outlined class="custom-input c-br-1" />
+            options-class="custom-dropdown" dense outlined class="custom-input c-br-1" />
           </div>
 
         </q-card-section>
@@ -78,338 +74,344 @@
               <q-item v-for="(item, index) in items" :key="index" class="q-pa-none list-item">
                 <div class="row items-center full-width no-wrap" style="position: relative;">
                   <q-select v-model="item.name" :options="item.filteredSuggestions" use-input hide-selected fill-input
-                    dense outlined dropdown-icon="arrow_drop_down" options-class="custom-dropdown"
-                    class="item-name-field item-inputs"
-                    @filter="(val, update) => update(() => filterSuggestions(item, val))" />
+                  dense outlined dropdown-icon="arrow_drop_down" options-class="custom-dropdown"
+                  class="item-name-field item-inputs"
+                  @filter="(val, update) => update(() => filterSuggestions(item, val))" />
                   <div class="field-group">
                     <q-input v-model.number="item.quantity" type="number" outlined dense
-                      class="quantity-field item-inputs custom-input"
-                      @update:model-value="(val) => item.quantity = Math.min(9999, parseInt(val) || 0)">
-                      <template v-slot:append>
-                        <div class="custom-arrows">
-                          <q-btn dense flat icon="keyboard_arrow_up"
-                            @click="item.quantity = Math.min(9999, item.quantity + 1)" />
-                          <q-btn dense flat icon="keyboard_arrow_down"
-                            @click="item.quantity = Math.max(1, item.quantity - 1)" />
-                        </div>
-                      </template>
-                    </q-input>
-                    <q-input v-model.number="item.price" type="number" outlined dense
-                      class="price-field item-inputs custom-input"
-                      @update:model-value="(val) => item.price = formatPrice(val)">
-                      <template v-slot:append>
-                        <span class="bch-unit">PHP</span>
-                        <div class="custom-arrows">
-                          <q-btn dense flat icon="keyboard_arrow_up" @click="increasePrice(item)" />
-                          <q-btn dense flat icon="keyboard_arrow_down" @click="decreasePrice(item)" />
-                        </div>
-                      </template>
-                    </q-input>
-                    <q-btn icon="close" dense flat @click="removeItem(index)" class="delete-btn" />
-                  </div>
-                </div>
-              </q-item>
-            </q-list>
+                    class="quantity-field item-inputs custom-input"
+                    @update:model-value="(val) => item.quantity = Math.min(9999, parseInt(val) || 0)">
+                    <template v-slot:append>
+                      <div class="custom-arrows">
+                        <q-btn dense flat icon="keyboard_arrow_up"
+                        @click="item.quantity = Math.min(9999, item.quantity + 1)" />
+                        <q-btn dense flat icon="keyboard_arrow_down"
+                        @click="item.quantity = Math.max(1, item.quantity - 1)" />
+                      </div>
+                    </template>
+                  </q-input>
+                  <q-input v-model.number="item.price" type="number" outlined dense
+                  class="price-field item-inputs custom-input"
+                  @update:model-value="(val) => item.price = formatPrice(val)">
+                  <template v-slot:append>
+                    <span class="bch-unit">PHP</span>
+                    <div class="custom-arrows">
+                      <q-btn dense flat icon="keyboard_arrow_up" @click="increasePrice(item)" />
+                      <q-btn dense flat icon="keyboard_arrow_down" @click="decreasePrice(item)" />
+                    </div>
+                  </template>
+                </q-input>
+                <q-btn icon="close" dense flat @click="removeItem(index)" class="delete-btn" />
+              </div>
+            </div>
+          </q-item>
+        </q-list>
+      </div>
+      <q-btn label="Add Item" icon="add" @click="addItem" class="q-mt-md full-width action-btn text-capitalize" />
+    </q-card-section>
+    <q-card-section style="padding-top: 0px; padding-bottom: 0px;">
+      <q-card-actions align="right" style="padding-right: 0px;">
+        <q-btn label="Cancel" class="cancel-btn text-capitalize" flat @click="addExpenseFormVisible = false" />
+        <q-btn class="proceed-btn text-capitalize" label="Split Payment" @click="splitPayment()" />
+      </q-card-actions>
+    </q-card-section>
+
+  </q-card>
+</q-dialog>
+
+
+<!--________________________________________Split KKB expenses dialog _________________________________________--->
+
+<q-dialog v-model="showSplitExpenseForm" persistent>
+  <q-card class="q-pa-md kkb-forms split-expense-q-card">
+    <q-card-section class="split-expense-form-top">
+      <div class="text-h6 text-bold">Split KKB Expenses</div>
+      <q-checkbox v-model="basicMode" class="basic-mode-toggle" @update:model-value="onUpdateMode()"
+      label="Quick Mode" checked />
+    </q-card-section>
+
+    <q-card-section class="q-gutter-md" style="padding-bottom: 6px;">
+      <div v-if="basicMode">
+        <div class="custom-field">
+          <div class="custom-label">Amount To Split</div>
+          <q-input v-model.number="amountToSplit" type="number" dense outlined class="custom-input c-br-1" min="2"
+          @update:model-value="onSetTotalAmount()">
+          <template v-slot:append>
+            <span class="bch-unit basic-mode-amount-unit">PHP</span>
+            <div class="custom-arrows">
+              <q-btn dense flat icon="keyboard_arrow_up"
+              @click="amountToSplit = Math.min(9999, amountToSplit + 100)" />
+              <q-btn dense flat icon="keyboard_arrow_down"
+              @click="amountToSplit = Math.max(1, amountToSplit - 100)" />
+            </div>
+          </template>
+        </q-input>
+      </div>
+    </div>
+    <div v-if="!basicMode">
+      <div class="header-row text-bold">
+        <q-item class="q-pa-none" style="min-height: 20px; box-sizing:border-box;">
+          <span style="min-width: 230px; text-align: left">Item(s)</span>
+          <span style="min-width: 60px; text-align: right;">Quantity</span>
+          <span style="min-width: 150px;text-align: right;">Price/Quantity</span>
+          <span style="min-width: 160px; text-align: right;">Total Prices</span>
+        </q-item>
+      </div>
+      <div class="q-list-container item-list-tally-container">
+        <q-list class="full-width item-list-tally">
+          <q-item v-for="(item, index) in items" :key="index" class="q-pa-none item-tally-row">
+            <span class="field-text" style="min-width: 230px;">{{ item.name }} </span>
+            <span class="field-text" style="min-width: 60px; text-align: right;">x {{ item.quantity }}</span>
+            <span class="field-text" style="min-width: 150px;text-align: right;">{{ Number(item.price).toFixed(2)
+          }}
+          <b class="bch-unit">PHP</b></span>
+          <span class="field-text" style="min-width: 160px; text-align: right;">{{
+            Number(formatPrice(item.quantity
+            * item.price)).toFixed(2) }} <b class="bch-unit">PHP</b></span>
+          </q-item>
+        </q-list>
+      </div>
+      <div class="text-bold footer-row">
+        <q-item class="q-pa-none" style="min-height: 20px; box-sizing:border-box; position: sticky; bottom: 0;">
+          <span style="min-width: 440px;text-align: right;">Total Amount: </span>
+          <span style="min-width: 160px; text-align: right; padding-right: 2px;">{{
+            Number(this.getTotalPrice()).toFixed(2) }}
+            <b style="color: darkgoldenrod;">PHP</b></span>
+          </q-item>
+        </div>
+      </div>
+
+      <div class="split-type-con">
+        <div class="custom-field split-field">
+          <div class="custom-label">Split Type</div>
+          <q-select v-model="splitType" :options="splitTypes" dropdown-icon="arrow_drop_down"
+          options-class="custom-dropdown" dense outlined class="custom-input c-br-1"
+          @update:model-value="resetParticipants" />
+        </div>
+
+        <div class="participants-num-field">
+          <div class="custom-field">
+            <div class="custom-label">Number of Participants</div>
+            <q-input :disable="splitType === 'Split By Amount'" v-model.number="participantCount" type="number"
+            dense outlined class="custom-input c-br-1" min="2" @update:model-value="splitEqually" />
           </div>
-          <q-btn label="Add Item" icon="add" @click="addItem" class="q-mt-md full-width action-btn text-capitalize" />
-        </q-card-section>
-        <q-card-section style="padding-top: 0px; padding-bottom: 0px;">
-          <q-card-actions align="right" style="padding-right: 0px;">
-            <q-btn label="Cancel" class="cancel-btn text-capitalize" flat @click="addExpenseFormVisible = false" />
-            <q-btn class="proceed-btn text-capitalize" label="Split Payment" @click="splitPayment()" />
-          </q-card-actions>
-        </q-card-section>
-
-      </q-card>
-    </q-dialog>
+        </div>
+      </div>
 
 
-    <!--________________________________________Split KKB expenses dialog _________________________________________--->
 
-    <q-dialog v-model="showSplitExpenseForm" persistent>
-      <q-card class="q-pa-md kkb-forms split-expense-q-card">
-        <q-card-section class="split-expense-form-top">
-          <div class="text-h6 text-bold">Split KKB Expenses</div>
-          <q-checkbox v-model="basicMode" class="basic-mode-toggle" @update:model-value="onUpdateMode()"
-            label="Quick Mode" checked />
-        </q-card-section>
+      <!-- Split By Amount -->
+      <div v-if="splitType === 'Split By Amount'">
+        <div class="payer-list-container">
 
-        <q-card-section class="q-gutter-md" style="padding-bottom: 6px;">
-          <div v-if="basicMode">
-            <div class="custom-field">
-              <div class="custom-label">Amount To Split</div>
-              <q-input v-model.number="amountToSplit" type="number" dense outlined class="custom-input c-br-1" min="2"
-                @update:model-value="onSetTotalAmount()">
+          <div class="payer-list-wrapper">
+            <q-list>
+              <q-item v-for="(payer, index) in participants" :key="index" class="q-pa-none list-item">
+
+                <q-input v-model="payer.name" dense outlined class="custom-input payer-name"
+                placeholder="Payer Name" />
+
+
+                <q-input v-model.number="payer.amount" type="number" dense outlined
+                class="custom-input payer-amount" :max="getMaxAmount()"
+                @update:model-value="adjustAmountsIfMismatch(payer)">
                 <template v-slot:append>
-                  <span class="bch-unit basic-mode-amount-unit">PHP</span>
+                  <span class="bch-unit">PHP</span>
                   <div class="custom-arrows">
-                    <q-btn dense flat icon="keyboard_arrow_up"
-                      @click="amountToSplit = Math.min(9999, amountToSplit + 100)" />
-                    <q-btn dense flat icon="keyboard_arrow_down"
-                      @click="amountToSplit = Math.max(1, amountToSplit - 100)" />
+                    <q-btn dense flat icon="keyboard_arrow_up" @click="increaseAmount(payer)" />
+                    <q-btn dense flat icon="keyboard_arrow_down" @click="decreaseAmount(payer)" />
                   </div>
                 </template>
               </q-input>
-            </div>
+
+              <q-btn icon="close" class="delete-btn" dense flat @click="removePayer(index)"
+              :disable="participantCount <= 2" />
+
+            </q-item>
+          </q-list>
+        </div>
+      </div>
+      <q-btn label="Add Participant" icon="add" @click="addParticipant"
+      class="q-mt-md full-width action-btn text-capitalize" />
+    </div>
+
+  </q-card-section>
+
+  <q-card-section v-if="splitType === 'Split Equally'"></q-card-section>
+
+  <q-card-section style="padding-top: 10px !important; padding-bottom: 0px;">
+
+    <q-card-actions align="right" style="padding-right: 0px;">
+      <span class="info-box">
+        <q-icon name="info" color="primary" size="24px">
+          <q-tooltip>Info</q-tooltip>
+        </q-icon>
+        <i>A network fee of 0.000015 BCH is equally allocated to all participants.</i>
+      </span>
+      <q-btn label="Return" class="cancel-btn text-capitalize" flat
+      @click="if (!basicMode) { showSplitExpenseForm = false; addExpenseFormVisible = true; } else { showSplitExpenseForm = false; }" />
+      <q-btn class="proceed-btn text-capitalize" label="Generate QR Codes" @click="confirmGenerate()" />
+    </q-card-actions>
+  </q-card-section>
+
+</q-card>
+</q-dialog>
+
+
+<q-dialog v-model="showQRCodes" persistent>
+  <q-card class="q-pa-md kkb-forms qrcode-form">
+    <q-card-section class="qrcode-form-title-con">
+      <div class="text-h6 text-bold">Payment QR Code</div>
+    </q-card-section>
+
+    <q-card-section class="q-pa-md flex items-center qrcode-pay-detail-con">
+      <div class="left-container">
+        <div class="wallet-info">
+          <span class="wallet-address"><b>Wallet Public Address:</b> <span class="white-text">{{
+            this.bitcoinCashAddress.replace(/^bitcoincash:/, '').slice(0, 20) + "..." +
+          this.bitcoinCashAddress.replace(/^bitcoincash:/, '').slice(-10) }}</span></span><br>
+          <span class="wallet-balance"><b>Wallet balance (BCH) :</b> <span class="white-text">{{
+          this.tempWalletBalance }}</span> <span class="amt-unit">BCH</span></span><br>
+          <span class="wallet-balance"><b>Wallet balance (PHP) :</b> <span class="white-text">{{
+          Number(this.tempWalletBalancePHP).toFixed(2) }}</span> <span class="amt-unit">PHP</span></span>
+        </div>
+        <div class="payer-checklist-con">
+          <div class="header-row text-bold">
+            <q-item class="q-pa-none" style="min-height: 20px; box-sizing:border-box;">
+              <span style="text-align: left" class="p-name-head">Payer Name</span>
+              <span style="text-align: right;">Amount (BCH)</span>
+              <span style="text-align: right;">Paid &nbsp;</span>
+            </q-item>
           </div>
-          <div v-if="!basicMode">
-            <div class="header-row text-bold">
+          <div class="payer-checklist">
+            <q-list v-for="(payer, index) in participantsQRPairs" :key="index">
               <q-item class="q-pa-none" style="min-height: 20px; box-sizing:border-box;">
-                <span style="min-width: 230px; text-align: left">Item(s)</span>
-                <span style="min-width: 60px; text-align: right;">Quantity</span>
-                <span style="min-width: 150px;text-align: right;">Price/Quantity</span>
-                <span style="min-width: 160px; text-align: right;">Total Prices</span>
+                <span style="text-align: left" class="p-name"><b>{{ payer.name }}</b></span>
+                <span style="text-align: right;">{{ Number(payer.amount).toFixed(8) }}
+                  <div style="display:inline;" class="bch-unit"> BCH</div>
+                </span>
+                <span style="text-align: right;">
+                  <q-icon v-if="payer.paid" name="check" size="18px" class="paid-check" />
+                  <div style="display:inline;" v-else><i>Pending</i></div>
+                </span>
               </q-item>
-            </div>
-            <div class="q-list-container item-list-tally-container">
-              <q-list class="full-width item-list-tally">
-                <q-item v-for="(item, index) in items" :key="index" class="q-pa-none item-tally-row">
-                  <span class="field-text" style="min-width: 230px;">{{ item.name }} </span>
-                  <span class="field-text" style="min-width: 60px; text-align: right;">x {{ item.quantity }}</span>
-                  <span class="field-text" style="min-width: 150px;text-align: right;">{{ Number(item.price).toFixed(2)
-                  }}
-                    <b class="bch-unit">PHP</b></span>
-                  <span class="field-text" style="min-width: 160px; text-align: right;">{{
-                    Number(formatPrice(item.quantity
-                      * item.price)).toFixed(2) }} <b class="bch-unit">PHP</b></span>
-                </q-item>
-              </q-list>
-            </div>
-            <div class="text-bold footer-row">
-              <q-item class="q-pa-none" style="min-height: 20px; box-sizing:border-box; position: sticky; bottom: 0;">
-                <span style="min-width: 440px;text-align: right;">Total Amount: </span>
-                <span style="min-width: 160px; text-align: right; padding-right: 2px;">{{
-                  Number(this.getTotalPrice()).toFixed(2) }}
-                  <b style="color: darkgoldenrod;">PHP</b></span>
-              </q-item>
-            </div>
+            </q-list>
           </div>
+        </div>
+        <span class="info-box">
+          <q-icon name="info" color="primary" size="24px">
+            <q-tooltip>Info</q-tooltip>
+          </q-icon>
+          <i>A network fee of 0.000015 BCH is equally allocated to all participants.</i>
+        </span>
+      </div>
 
-          <div class="split-type-con">
-            <div class="custom-field split-field">
-              <div class="custom-label">Split Type</div>
-              <q-select v-model="splitType" :options="splitTypes" dropdown-icon="arrow_drop_down"
-                options-class="custom-dropdown" dense outlined class="custom-input c-br-1"
-                @update:model-value="resetParticipants" />
-            </div>
-
-            <div class="participants-num-field">
-              <div class="custom-field">
-                <div class="custom-label">Number of Participants</div>
-                <q-input :disable="splitType === 'Split By Amount'" v-model.number="participantCount" type="number"
-                  dense outlined class="custom-input c-br-1" min="2" @update:model-value="splitEqually" />
-              </div>
-            </div>
+      <div class="right-container flex flex-column items-center">
+        <div v-if="participantsQRPairs[currentQRCodeIndex]?.paid" class="paid-stamp-bg">
+          <div class="paid-stamp"></div>
+        </div>
+        <img v-if="participantsQRPairs.length > 0" :src="participantsQRPairs[currentQRCodeIndex]?.qrcode"
+        alt="Payment QR Code" class="qrcode-img-large" />
+        <p v-else class="text-grey">Loading QR Code...</p>
+        <div v-if="participants.length > 0" class="text-center q-mt-md text-h6">
+          <div><span class="text-bold">Name: </span><span>{{ participantsQRPairs[currentQRCodeIndex]?.name }}</span>
           </div>
-
-
-
-          <!-- Split By Amount -->
-          <div v-if="splitType === 'Split By Amount'">
-            <div class="payer-list-container">
-
-              <div class="payer-list-wrapper">
-                <q-list>
-                  <q-item v-for="(payer, index) in participants" :key="index" class="q-pa-none list-item">
-
-                    <q-input v-model="payer.name" dense outlined class="custom-input payer-name"
-                      placeholder="Payer Name" />
-
-
-                    <q-input v-model.number="payer.amount" type="number" dense outlined
-                      class="custom-input payer-amount" :max="getMaxAmount()"
-                      @update:model-value="adjustAmountsIfMismatch(payer)">
-                      <template v-slot:append>
-                        <span class="bch-unit">PHP</span>
-                        <div class="custom-arrows">
-                          <q-btn dense flat icon="keyboard_arrow_up" @click="increaseAmount(payer)" />
-                          <q-btn dense flat icon="keyboard_arrow_down" @click="decreaseAmount(payer)" />
-                        </div>
-                      </template>
-                    </q-input>
-
-                    <q-btn icon="close" class="delete-btn" dense flat @click="removePayer(index)"
-                      :disable="participantCount <= 2" />
-
-                  </q-item>
-                </q-list>
-              </div>
-            </div>
-            <q-btn label="Add Participant" icon="add" @click="addParticipant"
-              class="q-mt-md full-width action-btn text-capitalize" />
+          <div><span class="text-bold">Amount (PHP): </span>{{
+            parseFloat(participantsQRPairs[currentQRCodeIndex]?.amount * bchPesoPrice).toFixed(2) }} <span class="amt-unit">Pesos</span>
           </div>
-
-        </q-card-section>
-
-        <q-card-section v-if="splitType === 'Split Equally'"></q-card-section>
-
-        <q-card-section style="padding-top: 10px !important; padding-bottom: 0px;">
-
-          <q-card-actions align="right" style="padding-right: 0px;">
-            <span class="info-box">
-              <q-icon name="info" color="primary" size="24px">
-                <q-tooltip>Info</q-tooltip>
-              </q-icon>
-              <i>A network fee of 0.000015 BCH is equally allocated to all participants.</i>
-            </span>
-            <q-btn label="Return" class="cancel-btn text-capitalize" flat
-              @click="if (!basicMode) { showSplitExpenseForm = false; addExpenseFormVisible = true; } else { showSplitExpenseForm = false; }" />
-            <q-btn class="proceed-btn text-capitalize" label="Generate QR Codes" @click="confirmGenerate()" />
-          </q-card-actions>
-        </q-card-section>
-
-      </q-card>
-    </q-dialog>
-
-
-    <q-dialog v-model="showQRCodes" persistent>
-      <q-card class="q-pa-md kkb-forms qrcode-form">
-        <q-card-section class="qrcode-form-title-con">
-          <div class="text-h6 text-bold">Payment QR Code</div>
-        </q-card-section>
-
-        <q-card-section class="q-pa-md flex items-center qrcode-pay-detail-con">
-          <div class="left-container">
-            <div class="wallet-info">
-              <span class="wallet-address"><b>Wallet Public Address:</b> <span class="white-text">{{
-                this.bitcoinCashAddress.replace(/^bitcoincash:/, '').slice(0, 20) + "..." +
-                this.bitcoinCashAddress.replace(/^bitcoincash:/, '').slice(-10) }}</span></span><br>
-              <span class="wallet-balance"><b>Wallet balance (BCH) :</b> <span class="white-text">{{
-                this.tempWalletBalance }}</span> <span class="amt-unit">BCH</span></span><br>
-              <span class="wallet-balance"><b>Wallet balance (PHP) :</b> <span class="white-text">{{
-                Number(this.tempWalletBalancePHP).toFixed(2) }}</span> <span class="amt-unit">PHP</span></span>
-            </div>
-            <div class="payer-checklist-con">
-              <div class="header-row text-bold">
-                <q-item class="q-pa-none" style="min-height: 20px; box-sizing:border-box;">
-                  <span style="text-align: left" class="p-name-head">Payer Name</span>
-                  <span style="text-align: right;">Amount (BCH)</span>
-                  <span style="text-align: right;">Paid &nbsp;</span>
-                </q-item>
-              </div>
-              <div class="payer-checklist">
-                <q-list v-for="(payer, index) in participantsQRPairs" :key="index">
-                  <q-item class="q-pa-none" style="min-height: 20px; box-sizing:border-box;">
-                    <span style="text-align: left" class="p-name"><b>{{ payer.name }}</b></span>
-                    <span style="text-align: right;">{{ Number(payer.amount).toFixed(8) }}<div style="display:inline;"
-                        class="bch-unit"> BCH</div></span>
-                    <span style="text-align: right;">
-                      <q-icon v-if="payer.paid" name="check" size="18px" class="paid-check" />
-                      <div style="display:inline;" v-else><i>Pending</i></div>
-                    </span>
-                  </q-item>
-                </q-list>
-              </div>
-
-            </div>
-
+          <div><span class="text-bold">Amount (BCH): </span>{{
+            parseFloat(participantsQRPairs[currentQRCodeIndex]?.amount).toFixed(8) }} <span
+            class="amt-unit">BCH</span>
           </div>
-          <div class="right-container flex flex-column items-center">
-            <div v-if="participantsQRPairs[currentQRCodeIndex]?.paid" class="paid-stamp-bg">
-              <div class="paid-stamp"></div>
-            </div>
-            <img v-if="participantsQRPairs.length > 0" :src="participantsQRPairs[currentQRCodeIndex]?.qrcode"
-              alt="Payment QR Code" class="qrcode-img-large" />
-            <p v-else class="text-grey">Loading QR Code...</p>
-            <div v-if="participants.length > 0" class="text-center q-mt-md text-h6">
-              <div><span class="text-bold">Name: </span><span>{{ participantsQRPairs[currentQRCodeIndex]?.name }}</span>
-              </div>
-              <div><span class="text-bold">Amount (PHP): </span>{{
-                parseFloat(participants[currentQRCodeIndex]?.amount).toFixed(2) }} <span class="amt-unit">Pesos</span>
-              </div>
-              <div><span class="text-bold">Amount (BCH): </span>{{
-                parseFloat(participantsQRPairs[currentQRCodeIndex]?.amount).toFixed(8) }} <span
-                  class="amt-unit">BCH</span>
-              </div>
-            </div>
-          </div>
+        </div>
+      </div>
 
-        </q-card-section>
+    </q-card-section>
 
-        <q-card-actions align="right">
-          <q-btn label="Finish" :disable="!isPaymentFull()" class="finish-btn" @click="completePaysplit()" />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
+    <q-card-actions align="right">
+      <q-btn label="Finish" :disable="!isPaymentFull()" class="finish-btn" @click="completePaysplit()" />
+    </q-card-actions>
+  </q-card>
+</q-dialog>
 
 
-     <q-dialog v-model="transactionEndDialog">
-        <q-card class="txid-dialog-card">
-          <q-card-section>
-            <div class="text-h6 text-bold">Transaction Successful!</div>
-          </q-card-section>
+<q-dialog v-model="transactionEndDialog">
+  <q-card class="txid-dialog-card">
+    <q-card-section>
+      <div class="text-h6 text-bold">Transaction Successful!</div>
+    </q-card-section>
 
-          <q-card-section>
-            <q-input class="txid-field"
-              v-model="lasttxid"
-              :disable="true"
-              label="Transaction ID"
-              dense
-              outlined
-            />
-          </q-card-section>
+    <q-card-section>
+      <q-input class="txid-field"
+      v-model="lasttxid"
+      :disable="true"
+      label="Transaction ID"
+      dense
+      outlined
+      />
+    </q-card-section>
 
-          <q-card-actions class="txid-d-btns" align="right">
-            <q-btn class="proceed-btn text-capitalize" icon="content_copy" @click="copyTxid()" label="Copy" />
-            <q-btn class="text-capitalize" flat color="negative" @click="transactionEndDialog = false" label="Close" />
-          </q-card-actions>
-        </q-card>
-      </q-dialog>
+    <q-card-actions class="txid-d-btns" align="right">
+      <q-btn class="proceed-btn text-capitalize" icon="content_copy" @click="copyTxid()" label="Copy" />
+      <q-btn class="text-capitalize" flat color="negative" @click="transactionEndDialog = false; getStartedDialog = true;" label="Close" />
+    </q-card-actions>
+  </q-card>
+</q-dialog>
 
 
-    <q-page-container>
+<q-page-container>
 
-    </q-page-container>
-  </q-layout>
+</q-page-container>
+</q-layout>
 </template>
 
 <script>
-import { QrcodeStream } from "vue-qrcode-reader";
-import * as secp256k1 from "secp256k1";
-import bs58 from "bs58";
+  import { QrcodeStream } from "vue-qrcode-reader";
+  import * as secp256k1 from "secp256k1";
+  import bs58 from "bs58";
 //import bs58check from "bs58check";
-import cashaddr from "cashaddrjs";
-import CryptoJS from "crypto-js";
-import QRCode from "qrcode";
-import axios from 'axios';
-import process from 'process';
-import { Buffer } from 'buffer';
-import { copyToClipboard } from "quasar";
+  import cashaddr from "cashaddrjs";
+  import CryptoJS from "crypto-js";
+  import QRCode from "qrcode";
+  import axios from 'axios';
+  import process from 'process';
+  import { Buffer } from 'buffer';
+  import { copyToClipboard } from "quasar";
 
-window.process = process;
-window.Buffer = Buffer;
-
-
+  window.process = process;
+  window.Buffer = Buffer;
 
 
-export default {
-  components: { QrcodeStream },
-  data() {
-    return {
-      basicMode: true,
-      bchAddress: "",
-      rememberMe: true,
-      getStartedDialog: false,
-      addExpenseFormVisible: false,
-      showSplitExpenseForm: false,
-      showQRCodes: false,
-      maxIntegerLength: 7,
-      maxDecimalLength: 2,
-      category: 'Food',
-      participantCount: 2,
-      pauseCam: false,
 
-      validAddress: false,
-      paymentAmounts: [],
-      privateKeyWIF: "",
-      publicKeyHex: "",
-      bitcoinCashAddress: "",
 
-      participants: [
-        { name: this.generateRandomName(), amount: 0 },
-        { name: this.generateRandomName(), amount: 0 }
-      ],
-      splitType: 'Split Equally',
+  export default {
+    components: { QrcodeStream },
+    data() {
+      return {
+        basicMode: true,
+        bchAddress: "",
+        rememberMe: true,
+        getStartedDialog: false,
+        addExpenseFormVisible: false,
+        showSplitExpenseForm: false,
+        showQRCodes: false,
+        maxIntegerLength: 7,
+        maxDecimalLength: 2,
+        category: 'Food',
+        participantCount: 2,
+        pauseCam: false,
+
+        validAddress: false,
+        paymentAmounts: [],
+        privateKeyWIF: "",
+        publicKeyHex: "",
+        bitcoinCashAddress: "",
+
+        participants: [
+          { name: this.generateRandomName(), amount: 0 },
+          { name: this.generateRandomName(), amount: 0 }
+        ],
+        splitType: 'Split Equally',
       splitTypes: ['Split Equally', 'Split By Amount'], //'Split By Items',
       items: [],
       amountToSplit: 1,
@@ -444,8 +446,7 @@ export default {
     };
   },
   mounted() {
-    window.getStarted = this.getStarted;
-    this.clearBackupData();
+    window.getStarted = this.getStarted; 
 
     try {
       const savedBackupData = JSON.parse(localStorage.getItem('interruptDataBackup')) || [];
@@ -458,8 +459,6 @@ export default {
           spinnerColor: "primary",
           backgroundColor: "black",
         });
-
-        //console.log("Wallet:",savedTempWalletInf);
 
         this.bchAddress = savedInitiatorAddress;
         this.participantsQRPairs = savedBackupData;
@@ -499,7 +498,6 @@ export default {
   },
   methods: {
     getStarted() {
-
       this.getStartedDialog = !this.getStartedDialog;
       this.retrieveAddress();
     },
@@ -509,6 +507,7 @@ export default {
     goToHowItWorks() {
       this.$router.push('/how-it-works');
     },
+
     async pasteAddress() {
       try {
         const text = await navigator.clipboard.readText(); // Read clipboard content
@@ -582,10 +581,10 @@ export default {
 
     onSetTotalAmount() {
       if (this.basicMode && this.amountToSplit){
-          if(this.amountToSplit > 0) {
-            this.items = [];
-            this.items.push({ name: 'Item Bundle', quantity: 1, price: this.amountToSplit, filteredSuggestions: [] });
-          }
+        if(this.amountToSplit > 0) {
+          this.items = [];
+          this.items.push({ name: 'Item Bundle', quantity: 1, price: this.amountToSplit, filteredSuggestions: [] });
+        }
       } 
       this.resetParticipants();
     },
@@ -607,6 +606,12 @@ export default {
     clearAddress() {
       this.bchAddress = '';
       this.pauseCam = false;
+      setTimeout(() => {
+        const e = document.querySelector('.temp-ctrs-text');
+        if(e){
+          e.parentNode.removeChild(e);
+        } 
+      }, 1000);
     },
 
     onManualAdressInput() {
@@ -618,13 +623,44 @@ export default {
       }
     },
 
-    retrieveAddress() {
+    async retrieveAddress() {
       const savedadd = localStorage.getItem('bchpadd');
       //console.log('Saved Address:', savedadd);
       if (savedadd) {
         this.bchAddress = savedadd;
         this.pauseCam = true;
+        const pausedCamFiller = await QRCode.toDataURL(this.bchAddress, {
+          errorCorrectionLevel: 'L',
+        });
+        const canvas = document.getElementById("qrcode-stream-pause-frame");
+        canvas.style.background = `url(${pausedCamFiller})`;
+        canvas.style.backgroundColor = '#fff';
+        canvas.style.backgroundSize = 'contain';
+        canvas.style.backgroundRepeat = 'no-repeat';
+        canvas.style.backgroundPosition = 'center 10px'; 
+        canvas.parentNode.appendChild(this.getPausedCamViewOverlay());
       }
+    },
+
+    getPausedCamViewOverlay(){
+      const div = document.createElement("div");
+      div.className = "temp-ctrs-text";
+      div.innerText = "Click to Re-scan";
+      div.style.display = "block";
+      div.style.position = "absolute";
+      div.style.top = '0';
+      div.style.paddingTop = '2px';
+      div.style.textAlign = 'center';
+      div.style.backgroundColor = 'rgba(50, 50, 50, 0.5)';
+      div.style.fontWeight = 'bold';
+      div.style.width = '100%';
+      div.style.borderRadius = "8px";
+      div.style.height = '96%';
+      div.style.cursor = "pointer";
+      div.addEventListener("click", () => {
+        this.clearAddress();
+      });
+      return div;
     },
 
     onScannerInit() {
@@ -657,10 +693,13 @@ export default {
       }
     },
     async onQRDecode(content) {
-
       if (content) {
         this.bchAddress = content[0].rawValue.split("?amount=")[0];
         this.pauseCam = true;
+        const canvas = document.getElementById("qrcode-stream-pause-frame");
+        const div = this.getPausedCamViewOverlay();
+        div.style.color = '#f1f1f1';
+        canvas.parentNode.appendChild(div);
       }
     },
 
@@ -845,8 +884,8 @@ export default {
 
       if (difference !== 0) {
         let filteredParticipants = excludePayer
-          ? this.participants.filter(p => p.name !== excludePayer.name)
-          : this.participants;
+        ? this.participants.filter(p => p.name !== excludePayer.name)
+        : this.participants;
         let maxAmount = Math.max(...filteredParticipants.map(p => p.amount));
         let highestPayers = filteredParticipants.filter(p => p.amount === maxAmount);
         if (highestPayers.length > 0) {
@@ -876,319 +915,297 @@ export default {
 
     confirmGenerate() {
       if(this.amountToSplit < 1){
-         this.$q.notify({
-          type: 'negative',
-          message: 'Amount to split is too small!',
-          position: 'top'
-        });
-        return;
+       this.$q.notify({
+        type: 'negative',
+        message: 'Amount to split is too small!',
+        position: 'top'
+      });
+       return;
+     }
+     let invSplit = false;
+     for (const payer of this.participants) {
+      if (payer.amount <= 0) {
+        invSplit = true;
       }
-      let invSplit = false;
-      for (const payer of this.participants) {
-        if (payer.amount <= 0) {
-          invSplit = true;
-        }
-      }
+    }
 
-      if (invSplit) {
+    if (invSplit) {
+      this.$q.notify({
+        type: 'negative',
+        message: 'Invalid payment amount allocation!',
+        position: 'top'
+      });
+      return;
+    }
+    this.$q.loading.show({
+      message: "Processing...",
+      spinnerColor: "primary",
+      backgroundColor: "black",
+    });
+    this.generateQRCodes();
+    this.showSplitExpenseForm = false;
+    setTimeout(() => {
+      this.showQRCodes = true;
+      this.$q.loading.hide();
+
+    }, 2000);
+  },
+
+
+  async generateQRCodes() {
+
+    if (this.getTotalPrice() && this.getTotalPrice() > 0) {
+      this.participantsQRPairs = [];
+      let amounts = [];
+      this.bchPesoPrice = await this.getBCHPricePHP();
+      if (!this.bchPesoPrice || this.bchPesoPrice == 0) {
         this.$q.notify({
           type: 'negative',
-          message: 'Invalid payment amount allocation!',
+          message: 'Error Occurred! Cannot fetch BCH price.',
           position: 'top'
         });
         return;
       }
-      this.$q.loading.show({
-        message: "Processing...",
-        spinnerColor: "primary",
-        backgroundColor: "black",
-      });
-      this.generateQRCodes();
-      this.showSplitExpenseForm = false;
-      setTimeout(() => {
-        this.showQRCodes = true;
-        this.$q.loading.hide();
-
-      }, 2000);
-    },
-
-
-    async generateQRCodes() {
-
-      if (this.getTotalPrice() && this.getTotalPrice() > 0) {
-        this.participantsQRPairs = [];
-        let amounts = [];
-        this.bchPesoPrice = await this.getBCHPricePHP();
-        if (!this.bchPesoPrice || this.bchPesoPrice == 0) {
-          this.$q.notify({
-            type: 'negative',
-            message: 'Error Occurred! Cannot fetch BCH price.',
-            position: 'top'
-          });
-          return;
-        }
-        this.participants.forEach(payer => {
+      this.participants.forEach(payer => {
           //console.log("1 PHP = ", (1/bchPesoPrice), "Res: ", payer.amount*(1/bchPesoPrice));
-          amounts.push((payer.amount * (1 / this.bchPesoPrice)) + (0.000015 / this.participantCount));
-        });
+        amounts.push((payer.amount * (1 / this.bchPesoPrice)) + (0.000015 / this.participantCount));
+      });
         //console.log("Amts: ", amounts);
-        this.paymentAmounts = amounts;
+      this.paymentAmounts = amounts;
         //console.log("Amots: ", this.paymentAmounts);
-        await this.generateNewKeys();
+      await this.generateNewKeys();
         //console.log("t-ADDRESS: ", this.bitcoinCashAddress);
 
-        this.startBalanceWorker();
-      }
-      else {
-        this.$q.notify({
-          type: 'negative',
-          message: 'Please enter an amount greater than 1PHP to proceed.',
-          position: 'top'
-        });
-      }
+      this.startBalanceWorker();
+    }
+    else {
+      this.$q.notify({
+        type: 'negative',
+        message: 'Please enter an amount greater than 1PHP to proceed.',
+        position: 'top'
+      });
+    }
 
-    },
+  },
 
 
-    async completePaysplit() {
-        const { default: BCHJS } = await import('@psf/bch-js');
-        const bchjs = new BCHJS();
+  async completePaysplit() {
+    const { default: BCHJS } = await import('@psf/bch-js');
+    const bchjs = new BCHJS();
 
-        this.$q.loading.show({
-          message: "Finalizing Transaction...",
-          spinnerColor: "primary",
-          backgroundColor: "black",
-        });
-        const netfee = 1500;
-        let utxos = [];
+    this.$q.loading.show({
+      message: "Finalizing Transaction...",
+      spinnerColor: "primary",
+      backgroundColor: "black",
+    });
+    const netfee = 1500;
+    let utxos = [];
 
-        try {
+    try {
           // Fetch UTXOs using bch-js API
-          const utxoResponse = await axios.get(
-            `https://api.fullstack.cash/v5/electrumx/utxos/${this.bitcoinCashAddress}`
-          );
-          utxos = utxoResponse.data.utxos;
-          console.log("UTXOs:", utxos);
-        } catch (err) {
-          console.error("Error fetching UTXOs:", err);
-          return;
-        }
+      const utxoResponse = await axios.get(
+    `https://api.fullstack.cash/v5/electrumx/utxos/${this.bitcoinCashAddress}`
+    );
+      utxos = utxoResponse.data.utxos;
+    } catch (err) {
+      console.error("Error fetching UTXOs:", err);
+      return;
+    }
+    let totalInput = utxos.reduce((sum, utxo) => sum + utxo.value, 0);
+    let amountToSend = totalInput - netfee;
 
-     
-          //console.log("Building BCH transaction using bch-js...");
-          
-          // Calculate total input and set amount to send
-          let totalInput = utxos.reduce((sum, utxo) => sum + utxo.value, 0);
-          let amountToSend = totalInput - netfee;
+    if (amountToSend <= 0) throw new Error("Not enough funds!");
 
-          if (amountToSend <= 0) throw new Error("Not enough funds!");
+    let transactionBuilder = new bchjs.TransactionBuilder("mainnet");
+    utxos.forEach((utxo) => {
+      transactionBuilder.addInput(utxo.tx_hash, utxo.tx_pos);
+    });
+    let legacyAddress = bchjs.Address.toLegacyAddress(this.bchAddress);
+    transactionBuilder.addOutput(legacyAddress, amountToSend);
+    const ecPair = bchjs.ECPair.fromWIF(this.privateKeyWIF);
+    utxos.forEach((utxo, index) => {
+      transactionBuilder.sign(
+        index,
+        ecPair,
+        null,
+        transactionBuilder.hashTypes.SIGHASH_ALL,
+        utxo.value
+        );
+    });
+    const tx = transactionBuilder.build();
+    const txHex = tx.toHex();
+    await this.broadcastTransaction(bchjs, txHex);
 
-          // Create transaction builder
-          let transactionBuilder = new bchjs.TransactionBuilder("mainnet");
+  },
 
-          // Add UTXOs as inputs
-          utxos.forEach((utxo) => {
-            transactionBuilder.addInput(utxo.tx_hash, utxo.tx_pos);
-          });
-
-          // Add output (recipient)
-          let legacyAddress = bchjs.Address.toLegacyAddress(this.bchAddress);
-          transactionBuilder.addOutput(legacyAddress, amountToSend);
-
-          // Decode WIF to private key
-          const ecPair = bchjs.ECPair.fromWIF(this.privateKeyWIF);
-
-          // Sign each input
-          utxos.forEach((utxo, index) => {
-            transactionBuilder.sign(
-              index,
-              ecPair,
-              null,
-              transactionBuilder.hashTypes.SIGHASH_ALL,
-              utxo.value
-            );
-          });
-
-          // Build and broadcast transaction
-          const tx = transactionBuilder.build();
-          const txHex = tx.toHex();
-
-          console.log("Signed Transaction:", txHex);
-
-          await this.broadcastTransaction(bchjs, txHex);
-
-    },
-
-    async broadcastTransaction(bchjs, txHex) {
-      try {
-        const result = await bchjs.RawTransactions.sendRawTransaction(txHex);
-        console.log("Transaction Broadcasted! TXID:", result);
-        if(/^[a-fA-F0-9]{64}$/.test(result)){
-          this.lasttxid = result;
-          this.$q.loading.hide();
-
-          this.transactionEndDialog = true;
-          
-          this.clearBackupData();
-        }
-      } catch (err) {
-        console.error("Error broadcasting transaction:", err);
+  async broadcastTransaction(bchjs, txHex) {
+    try {
+      const result = await bchjs.RawTransactions.sendRawTransaction(txHex);
+      if(/^[a-fA-F0-9]{64}$/.test(result)){
+        this.lasttxid = result;
+        this.$q.loading.hide();
+        this.showQRCodes = false;
+        this.clearBackupData();
+        this.transactionEndDialog = true;   
       }
-    },
+    } catch (err) {
+      console.error("Error broadcasting transaction:", err);
+    }
+  },
 
-    clearBackupData(){
-      localStorage.removeItem('interruptDataBackup');
-      localStorage.removeItem('interruptInitiatorAddress');
-      localStorage.removeItem('interruptTempWalletInf');
-      localStorage.removeItem('interruptAmountAndPrinceCheckpoint');
-    },
+  clearBackupData(){
+    localStorage.removeItem('interruptDataBackup');
+    localStorage.removeItem('interruptInitiatorAddress');
+    localStorage.removeItem('interruptTempWalletInf');
+    localStorage.removeItem('interruptAmountAndPrinceCheckpoint');
+  },
 
-    isPaymentFull() {
-      return !this.participantsQRPairs.some(payer => payer.paid === false);
-    },
+  isPaymentFull() {
+    return !this.participantsQRPairs.some(payer => payer.paid === false);
+  },
 
-    copyTxid(){
-      copyToClipboard(this.lasttxid).
-        then(() => { 
-          this.$q.notify({ type: "positive", message:"Copied to clipboard!" });
-        }).catch(()=>{ 
-          this.$q.notify({ type: "negative", message: "Failed to copy!" });
-        });
-    },
+  copyTxid(){
+    copyToClipboard(this.lasttxid).
+    then(() => { 
+      this.$q.notify({ type: "positive", message:"Copied to clipboard!" });
+    }).catch(()=>{ 
+      this.$q.notify({ type: "negative", message: "Failed to copy!" });
+    });
+  },
 
     //-----------important----------------------------------
 
 
 
     // Generates new private and public keys, WIF, and Bitcoin Cash address
-    async generateNewKeys() {
-      const privateKey = await this.generatePrivateKey();
-      this.privateKeyWIF = privateKey.wif;
-      this.publicKeyHex = privateKey.publicKey;
-      this.bitcoinCashAddress = privateKey.address;
-      await this.generatePublicQRCodes();
-    },
+  async generateNewKeys() {
+    const privateKey = await this.generatePrivateKey();
+    this.privateKeyWIF = privateKey.wif;
+    this.publicKeyHex = privateKey.publicKey;
+    this.bitcoinCashAddress = privateKey.address;
+    await this.generatePublicQRCodes();
+  },
 
     // Generates a private key, derives public key and Bitcoin Cash address
-    async generatePrivateKey() {
+  async generatePrivateKey() {
       // Generate a 32-byte private key using browser crypto API
-      const privateKey = new Uint8Array(32);
-      window.crypto.getRandomValues(privateKey);
+    const privateKey = new Uint8Array(32);
+    window.crypto.getRandomValues(privateKey);
 
       // Generate compressed public key
-      const publicKey = secp256k1.publicKeyCreate(privateKey, true);
+    const publicKey = secp256k1.publicKeyCreate(privateKey, true);
 
-      const privateKeyHex = this.binToHex(privateKey);
-      const publicKeyHex = this.binToHex(publicKey);
+    const privateKeyHex = this.binToHex(privateKey);
+    const publicKeyHex = this.binToHex(publicKey);
 
-      const privateKeyHash = await this.sha256(privateKeyHex, 'hex');
-      const publicKeyHash = await this.sha256(publicKeyHex, 'hex');
+    const privateKeyHash = await this.sha256(privateKeyHex, 'hex');
+    const publicKeyHash = await this.sha256(publicKeyHex, 'hex');
 
-      const sha256Hash = await this.sha256(publicKeyHex, 'hex');
-      const ripemdHash = this.ripemd160(this.hexToBin(sha256Hash));
-      const extendedKey = new Uint8Array([0x80, ...privateKey, 0x01]);
-      const hashWif1 = await this.sha256(extendedKey, 'hex');
-      const hashWif2 = await this.sha256(this.hexToBin(hashWif1), 'hex');
-      const checksumWif = this.hexToBin(hashWif2).slice(0, 4);
-      const wifKey = new Uint8Array([...extendedKey, ...checksumWif]);
-      const finalWIF = this.binToBase58(wifKey);
+    const sha256Hash = await this.sha256(publicKeyHex, 'hex');
+    const ripemdHash = this.ripemd160(this.hexToBin(sha256Hash));
+    const extendedKey = new Uint8Array([0x80, ...privateKey, 0x01]);
+    const hashWif1 = await this.sha256(extendedKey, 'hex');
+    const hashWif2 = await this.sha256(this.hexToBin(hashWif1), 'hex');
+    const checksumWif = this.hexToBin(hashWif2).slice(0, 4);
+    const wifKey = new Uint8Array([...extendedKey, ...checksumWif]);
+    const finalWIF = this.binToBase58(wifKey);
 
-      return {
-        privateKey: privateKeyHex,
-        privateKeyHash,
-        publicKey: publicKeyHex,
-        publicKeyHash,
-        address: this.encodeCashAddress({
-          prefix: 'bitcoincash',
-          type: 'P2PKH',
-          payload: ripemdHash,
-        }),
-        wif: finalWIF
-      };
-    },
+    return {
+      privateKey: privateKeyHex,
+      privateKeyHash,
+      publicKey: publicKeyHex,
+      publicKeyHash,
+      address: this.encodeCashAddress({
+        prefix: 'bitcoincash',
+        type: 'P2PKH',
+        payload: ripemdHash,
+      }),
+      wif: finalWIF
+    };
+  },
 
 
 
 
     // Updates the public QR code with a payment amount
-    async generatePublicQRCodes() {
+  async generatePublicQRCodes() {
 
-      for (let n = 0; n < this.paymentAmounts.length; n++) {
-        const cleanAddress = this.bitcoinCashAddress.replace(/^bitcoincash:/, '');
-        let qrDataPublic = `bitcoincash:${cleanAddress}`;
-        this.publicWalletAddress = qrDataPublic;
+    for (let n = 0; n < this.paymentAmounts.length; n++) {
+      const cleanAddress = this.bitcoinCashAddress.replace(/^bitcoincash:/, '');
+      let qrDataPublic = `bitcoincash:${cleanAddress}`;
+      this.publicWalletAddress = qrDataPublic;
         //console.log("Address: ", this.publicWalletAddress);
-        qrDataPublic += `?amount=${this.paymentAmounts[n]}`;
+      qrDataPublic += `?amount=${this.paymentAmounts[n]}`;
         //console.log("Address: ", qrDataPublic);
-        let paid = false;
-        if (this.paymentAmounts[n] === 0) {
-          paid = true;
-        }
-        try {
-          let qrcode1 = await QRCode.toDataURL(qrDataPublic, {
-            errorCorrectionLevel: 'L',
-          });
-          this.participantsQRPairs.push({
-            name: this.participants[n].name,
-            amount: this.paymentAmounts[n],
-            qrcode: qrcode1,
-            paid: paid,
-          });
+      let paid = false;
+      if (this.paymentAmounts[n] === 0) {
+        paid = true;
+      }
+      try {
+        let qrcode1 = await QRCode.toDataURL(qrDataPublic, {
+          errorCorrectionLevel: 'L',
+        });
+        this.participantsQRPairs.push({
+          name: this.participants[n].name,
+          amount: this.paymentAmounts[n],
+          qrcode: qrcode1,
+          paid: paid,
+        });
           //console.log("PAmt: ", this.paymentAmounts[n]);
           //this.qrCodes.push(qrcode1);
-        } catch (error) {
-          console.error(`Error generating QR code for ${cleanAddress}:`, error);
-          return;
-        }
-
+      } catch (error) {
+        console.error(`Error generating QR code for ${cleanAddress}:`, error);
+        return;
       }
-    },
 
-    async sha256(data = '', encoding = 'utf8') {
-      let buffer;
+    }
+  },
 
-      if (data instanceof Uint8Array) {
-        buffer = data;
-      } else if (encoding === 'utf8') {
-        buffer = new TextEncoder().encode(data);
-      } else if (encoding === 'hex') {
-        buffer = this.hexToBin(data);
-      } else {
-        throw new Error('Unsupported encoding type');
-      }
+  async sha256(data = '', encoding = 'utf8') {
+    let buffer;
+
+    if (data instanceof Uint8Array) {
+      buffer = data;
+    } else if (encoding === 'utf8') {
+      buffer = new TextEncoder().encode(data);
+    } else if (encoding === 'hex') {
+      buffer = this.hexToBin(data);
+    } else {
+      throw new Error('Unsupported encoding type');
+    }
 
       // Use window.crypto.subtle explicitly
-      const hashBuffer = await window.crypto.subtle.digest('SHA-256', buffer);
-      return this.binToHex(new Uint8Array(hashBuffer));
-    },
+    const hashBuffer = await window.crypto.subtle.digest('SHA-256', buffer);
+    return this.binToHex(new Uint8Array(hashBuffer));
+  },
 
 
     // Convert Uint8Array to Hex
-    binToHex(uint8Array) {
-      return Array.from(uint8Array)
-        .map(byte => byte.toString(16).padStart(2, '0'))
-        .join('');
-    },
+  binToHex(uint8Array) {
+    return Array.from(uint8Array)
+    .map(byte => byte.toString(16).padStart(2, '0'))
+    .join('');
+  },
 
     // Convert Hex to Uint8Array
-    hexToBin(hex) {
-      return new Uint8Array(
-        hex.match(/.{1,2}/g).map(byte => parseInt(byte, 16))
+  hexToBin(hex) {
+    return new Uint8Array(
+      hex.match(/.{1,2}/g).map(byte => parseInt(byte, 16))
       );
-    },
+  },
 
     // Convert Uint8Array to Base58 (if needed for WIF key)
-    binToBase58(uint8Array) {
+  binToBase58(uint8Array) {
       return bs58.encode(uint8Array); // Requires 'bs58' library
     },
 
     ripemd160(buffer) {
       return new Uint8Array(
         CryptoJS.RIPEMD160(CryptoJS.enc.Hex.parse(this.binToHex(buffer)))
-          .toString(CryptoJS.enc.Hex)
-          .match(/.{1,2}/g)
-          .map(byte => parseInt(byte, 16))
-      );
+        .toString(CryptoJS.enc.Hex)
+        .match(/.{1,2}/g)
+        .map(byte => parseInt(byte, 16))
+        );
     },
 
 
@@ -1211,22 +1228,22 @@ export default {
     },
 
     toDER(signature) {
-        let r = signature.slice(0, 32);
-        let s = signature.slice(32, 64);
+      let r = signature.slice(0, 32);
+      let s = signature.slice(32, 64);
 
         // Ensure R and S are properly formatted
-        if (r[0] & 0x80) r = Uint8Array.from([0, ...r]); 
-        if (s[0] & 0x80) s = Uint8Array.from([0, ...s]);
+      if (r[0] & 0x80) r = Uint8Array.from([0, ...r]); 
+      if (s[0] & 0x80) s = Uint8Array.from([0, ...s]);
 
-        let rLen = r.length;
-        let sLen = s.length;
+      let rLen = r.length;
+      let sLen = s.length;
 
-        return Uint8Array.from([
+      return Uint8Array.from([
             0x30, // DER sequence
             rLen + sLen + 4,
             0x02, rLen, ...r, 
             0x02, sLen, ...s
-        ]);
+          ]);
     },
 
     //---------- for temp wallet balance monitoring ---------------
@@ -1239,7 +1256,7 @@ export default {
           if (event.data.error) {
             console.error(event.data.error);
           } else {
-            const updatedBalance = event.data.received;
+            const updatedBalance = event.data.received * (1/100000000);
             const balChange = updatedBalance - this.tempWalletBalance;
             if (balChange > 0) {
               this.participantsQRPairs[this.currentQRCodeIndex].paid = true;
@@ -1263,8 +1280,6 @@ export default {
                 }
                 localStorage.setItem('interruptAmountAndPrinceCheckpoint', JSON.stringify(amountAndPrinceCheckpoint));
               }
-              //const savedData = JSON.parse(localStorage.getItem('interruptDataBackup'));
-              //console.log("Saved Data:", savedData);
 
               setTimeout(() => {
                 if (!this.isPaymentFull()) {

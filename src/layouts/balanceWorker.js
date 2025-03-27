@@ -3,7 +3,6 @@ let address = null;
 self.onmessage = function (event) {
   if (event.data.address) {
     address = event.data.address;
-    console.log("Received Address:", address);
     startFetchingBalance();
   }
 };

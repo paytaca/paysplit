@@ -209,7 +209,7 @@
               <q-item v-for="(payer, index) in participants" :key="index" class="q-pa-none list-item">
 
                 <q-input v-model="payer.name" dense outlined class="custom-input payer-name"
-                placeholder="Payer Name" />
+                placeholder="Payer Name" @update:model-value="sanitizePayerNameInput(index)"/>
 
 
                 <q-input v-model.number="payer.amount" type="number" dense outlined
@@ -341,19 +341,34 @@
       <div class="text-h6 text-bold">Transaction Successful!</div>
     </q-card-section>
 
-    <q-card-section>
-      <q-input class="txid-field"
-      v-model="lasttxid"
-      :disable="true"
-      label="Transaction ID"
-      dense
-      outlined
-      />
+    <q-card-section class="transact-details-con">
+      <div class="txid-sec">
+          <q-input class="txid-field"
+          v-model="lasttxid"
+          :disable="true"
+          label="Transaction ID"
+          dense
+          outlined
+          />
+          <q-btn class='copy-btn' flat color="primary" icon="fa-solid fa-copy" @click="copyTxid()"/>
+      </div>
+      <div class="receipt-sec"> 
+        <q-input class="merchant-name-field"
+        v-model="merchantName"
+        label="Merchant Name"
+        dense
+        outlined
+        />
+        <div class="receipt-summary-con">
+          <label class="receipt-field-label">Transaction Receipt</label>
+          <pre>{{this.lastReceipt}}</pre>
+        </div>
+      </div>
     </q-card-section>
 
-    <q-card-actions class="txid-d-btns" align="right">
-      <q-btn class="proceed-btn text-capitalize" icon="content_copy" @click="copyTxid()" label="Copy" />
-      <q-btn class="text-capitalize" flat color="negative" @click="transactionEndDialog = false; getStartedDialog = true;" label="Close" />
+    <q-card-actions class="txid-d-btns" align="left">
+      <q-btn class="proceed-btn text-capitalize" @click="printReceipt()" label="Print Receipt" />
+      <q-btn class="cancel-btn text-capitalize" color="text-white-grey" flat @click="updateSessionRecords(); transactionEndDialog = false; getStarted();" label="Close" />
     </q-card-actions>
   </q-card>
 </q-dialog>
@@ -440,13 +455,17 @@
       bchPesoPrice: null,
       tempWalletBalance: 0,
       tempWalletBalancePHP: 0,
+      networkFee: 1500,
       lasttxid: null,
       transactionEndDialog: false,
+      merchantName: "Random Merchant",
+      lastReceipt: null,
 
     };
   },
   mounted() {
     window.getStarted = this.getStarted; 
+    //this.transactionEndDialog = true;
 
     try {
       const savedBackupData = JSON.parse(localStorage.getItem('interruptDataBackup')) || [];
@@ -500,6 +519,7 @@
     getStarted() {
       this.getStartedDialog = !this.getStartedDialog;
       this.retrieveAddress();
+      this.basicMode = true;
     },
     goToHome() {
       this.$router.push('/');
@@ -580,10 +600,14 @@
     },
 
     onSetTotalAmount() {
-      if (this.basicMode && this.amountToSplit){
-        if(this.amountToSplit > 0) {
+      if (this.basicMode){
+        if(this.amountToSplit && (this.amountToSplit > 0)) {
           this.items = [];
           this.items.push({ name: 'Item Bundle', quantity: 1, price: this.amountToSplit, filteredSuggestions: [] });
+        }
+        else{
+          this.amountToSplit = 1;
+          this.onSetTotalAmount();
         }
       } 
       this.resetParticipants();
@@ -625,7 +649,7 @@
 
     async retrieveAddress() {
       const savedadd = localStorage.getItem('bchpadd');
-      //console.log('Saved Address:', savedadd);
+      console.log('Saved Address:', savedadd);
       if (savedadd) {
         this.bchAddress = savedadd;
         this.pauseCam = true;
@@ -878,14 +902,17 @@
       }
 
     },
+
+    sanitizePayerNameInput(index) {
+      this.participants[index].name = this.participants[index].name.replace(/['"<>!?=/,*%]/g, '');
+    },
+
     adjustAmountsIfMismatch(excludePayer = null) {
       let totalAssigned = this.participants.reduce((sum, p) => sum + p.amount, 0);
       let difference = this.getTotalPrice() - totalAssigned;
 
       if (difference !== 0) {
-        let filteredParticipants = excludePayer
-        ? this.participants.filter(p => p.name !== excludePayer.name)
-        : this.participants;
+        let filteredParticipants = excludePayer ? this.participants.filter(p => p.name !== excludePayer.name) : this.participants;
         let maxAmount = Math.max(...filteredParticipants.map(p => p.amount));
         let highestPayers = filteredParticipants.filter(p => p.amount === maxAmount);
         if (highestPayers.length > 0) {
@@ -998,7 +1025,7 @@
       spinnerColor: "primary",
       backgroundColor: "black",
     });
-    const netfee = 1500;
+    const netfee = this.networkFee;
     let utxos = [];
 
     try {
@@ -1043,6 +1070,10 @@
       const result = await bchjs.RawTransactions.sendRawTransaction(txHex);
       if(/^[a-fA-F0-9]{64}$/.test(result)){
         this.lasttxid = result;
+
+        this.lastReceipt = await this.prepareReceipt();
+        console.log("Receipt:\n", this.lastReceipt);
+
         this.$q.loading.hide();
         this.showQRCodes = false;
         this.clearBackupData();
@@ -1133,10 +1164,8 @@
     for (let n = 0; n < this.paymentAmounts.length; n++) {
       const cleanAddress = this.bitcoinCashAddress.replace(/^bitcoincash:/, '');
       let qrDataPublic = `bitcoincash:${cleanAddress}`;
-      this.publicWalletAddress = qrDataPublic;
-        //console.log("Address: ", this.publicWalletAddress);
-      qrDataPublic += `?amount=${this.paymentAmounts[n]}`;
-        //console.log("Address: ", qrDataPublic);
+      this.publicWalletAddress = qrDataPublic; 
+      qrDataPublic += `?amount=${this.paymentAmounts[n]}`; 
       let paid = false;
       if (this.paymentAmounts[n] === 0) {
         paid = true;
@@ -1150,9 +1179,7 @@
           amount: this.paymentAmounts[n],
           qrcode: qrcode1,
           paid: paid,
-        });
-          //console.log("PAmt: ", this.paymentAmounts[n]);
-          //this.qrCodes.push(qrcode1);
+        }); 
       } catch (error) {
         console.error(`Error generating QR code for ${cleanAddress}:`, error);
         return;
@@ -1172,15 +1199,12 @@
       buffer = this.hexToBin(data);
     } else {
       throw new Error('Unsupported encoding type');
-    }
-
-      // Use window.crypto.subtle explicitly
+    } 
     const hashBuffer = await window.crypto.subtle.digest('SHA-256', buffer);
     return this.binToHex(new Uint8Array(hashBuffer));
   },
 
-
-    // Convert Uint8Array to Hex
+ 
   binToHex(uint8Array) {
     return Array.from(uint8Array)
     .map(byte => byte.toString(16).padStart(2, '0'))
@@ -1196,7 +1220,7 @@
 
     // Convert Uint8Array to Base58 (if needed for WIF key)
   binToBase58(uint8Array) {
-      return bs58.encode(uint8Array); // Requires 'bs58' library
+      return bs58.encode(uint8Array);
     },
 
     ripemd160(buffer) {
@@ -1324,6 +1348,67 @@
         console.error(err);
       }
       return bchPesoPrice;
+    },
+
+
+
+    async loadReceiptTemplate() {
+      const response = await fetch('/template/rtemp.txt');
+      const text = await response.text();
+      return text;
+    },
+
+    async finalizeReceipt(receipt) {
+      const fr = receipt.toString();
+      return fr.replace('{MERCHANT_NAME}', this.merchantName);
+    },
+
+    async prepareReceipt(){
+        let template = await this.loadReceiptTemplate();
+
+        let items_str = "";
+        for(const item of this.items){
+            const name = (item.name.length < 12) ? item.name : item.name.slice(0, 12);
+            items_str += ' >' + name + ' ' + item.quantity + ' ' + Number(item.quantity * item.price * (1/this.bchPesoPrice)).toFixed(8) +"BCH / " + Number(item.quantity * item.price).toFixed(2) + "PHP" + "\n";
+        }
+
+        let payers_str = "";
+        for(const payer of this.participantsQRPairs){
+            const name = (payer.name.length < 17) ? payer.name : payer.name.slice(0, 17);
+            payers_str += ' >' + name + ' ' + Number(payer.amount).toFixed(8) +"BCH / " + Number(payer.amount * (1/this.bchPesoPrice)).toFixed(2) + "PHP" + "\n";
+        }
+
+        let total_pay_str = this.tempWalletBalance + "BCH / "+ this.tempWalletBalancePHP+"PHP\n";
+        let txid_str = this.lasttxid.slice(0, 32) + "\n" + this.lasttxid.slice(32, 64);
+        const data = {
+          timestamp: new Date().toLocaleString(),
+          item_list: items_str,
+          payer_list: payers_str,
+          netfee: this.networkFee,
+          total_pay: total_pay_str, 
+          txid: txid_str,
+        }
+
+
+
+        return template
+        .replace('{TIMESTAMP}', data.timestamp)
+        .replace('{ITEM_INPUTS}', data.item_list)
+        .replace('{NET_FEE}', data.netfee)
+        .replace('{TOTAL_PAYMENT}', data.total_pay)
+        .replace('{PAYER_LIST}', data.payer_list)
+        .replace('{TXID}', data.txid);
+    },
+
+    printReceipt(){
+        let fr = this.finalizeReceipt(this.lastReceipt);
+        console.log("Receipt:\n", fr);
+
+        //You can proceed with connecting to the thermal printer here and pass 'fr' to be printed
+    },
+
+    updateSessionRecords(){
+      //-----------
     },
 
 

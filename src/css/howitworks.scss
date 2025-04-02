@@ -1,68 +1,72 @@
 .how-it-works {
-    text-align: center;
-    margin-bottom: 30px;
-    align-content: center;
-    width: 100%;
-  }
-  
-  h1.text-center{
-    margin: 10px auto;  
-  }
+  text-align: center;
+  margin-bottom: 30px;
+  align-content: center;
+  width: 100%;
+}
 
-  .description {
-    font-size: x-large;
-    margin-bottom: 20px;
-    color: #f1d9d9;
+h1.text-center{
+  margin: 10px auto;  
+}
 
-  }
-  
-  .step-container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin: 20px 0;
-    padding: 15px;
-    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);
-    background-color: #ebe7e7;
-    border-radius: 8px;
+.description {
+  font-size: x-large;
+  margin-bottom: 20px;
+  color: #f1d9d9;
+
+}
+
+.step-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  display: block;
+  margin: 20px 0;
+  padding: 15px;
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);
+  background-color: #ebe7e7;
+  border-radius: 8px;
 }
 
 .step-container.reverse {
-    flex-direction: row-reverse;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin: 20px 0;
-    padding: 15px;
-    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);
-    background-color: #ebe7e7;
-    border-radius: 8px;
+  flex-direction: row-reverse;
+  display: block;
+  align-items: center;
+  justify-content: space-between;
+  margin: 20px 0;
+  padding: 15px;
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);
+  background-color: #ebe7e7;
+  border-radius: 8px;
 }
-  
-  .step-description {
-    flex: 1;
-    padding: 20px;
-  }
-  
-  .step-image {
-    flex: 1;
-    text-align: center;
-  }
-  
-  .step-image img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 10px;
-  }
 
-  p{
-    text-align: justify;
-    text-indent: 30px;
-    font-size: 20px;
-  }
-  
+.step-description {
+  flex: 1;
+  padding: 20px;
+}
+
+.step-image {
+  flex: 1;
+  text-align: center;
+}
+
+.step-image img {
+  max-width: 70%;
+  height: auto;
+  padding-bottom: 30px;
+  border-radius: 10px;
+}
+
+p{
+  text-indent: 30px;
+  max-width: 70%;
+  text-align: justify;
+  margin: auto;
+  font-size: 20px;
+}
+
 .footer-bottom {
-    text-align: center;
-    color: white;
-    font-size: 17px;
-  }
+  text-align: center;
+  color: white;
+  font-size: 17px;
+}

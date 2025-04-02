@@ -4,9 +4,9 @@ const routes = [
     component: () => import('layouts/MainLayout.vue'),
     children: [
       { path: '', component: () => import('pages/IndexPage.vue') },
-      { path: 'how-it-works', component: () => import('pages/HowItWorks.vue') } 
+      { path: 'how-it-works', component: () => import('pages/HowItWorks.vue') },
+      { path: 'session-records', component: () => import('pages/SessionRecords.vue') }, // `SessionRecords` import is not used
     ],
-
   },
 
   // Always leave this as last one,

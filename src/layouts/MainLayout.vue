@@ -8,9 +8,10 @@
           alt="paytaca-paysplit-title.png" />
 
         </q-toolbar-title>
-        <q-btn flat dense class="toolbar-btn-home" label="Home" @click="goToHome()" />
+        <q-btn flat dense class="toolbar-btn" label="Home" @click="goToHome()" />
         <q-btn flat dense class="toolbar-btn" label="Get Started" @click="getStarted()" />
-        <q-btn flat dense class="toolbar-btn-how-it-works" label="How it Works" @click="goToHowItWorks()" />
+        <q-btn flat dense class="toolbar-btn" label="How it Works" @click="goToHowItWorks()" />
+        <q-btn flat dense class="toolbar-btn" label="Session Records" @click="goToSessionRecords()"/>
 
       </q-toolbar>
     </q-header>
@@ -526,6 +527,9 @@
     },
     goToHowItWorks() {
       this.$router.push('/how-it-works');
+    },
+    goToSessionRecords(){
+      this.$router.push('/session-records')
     },
 
     async pasteAddress() {

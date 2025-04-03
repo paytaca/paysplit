@@ -12,6 +12,10 @@ body{
   overflow-x: hidden;
 }
 
+.q-page{
+  padding-right: 10px;
+  padding-left: 10px;
+}
 
 .banner-container {
   display: flex;
@@ -44,7 +48,7 @@ h1 {
 
 /* Call-to-Action Button */
 .cta-btn {
-  background-color: #ff5a5f;
+  background-color: $bright-btn;
   color: white;
   padding: 8px 24px;
   font-size: 12px;
@@ -55,7 +59,7 @@ h1 {
 }
 
 .cta-btn:hover {
-  background-color: #e04b50;
+  background-color: $bright-btn-hover;
 }
 
 /* Image */
@@ -212,7 +216,6 @@ hr {
 }
 
 .how-it-works {
-  text-align: center;
   margin-bottom: 30px;
   align-content: center;
   width: 100%;
@@ -221,12 +224,16 @@ hr {
 h1.text-center{
   margin: 10px auto;  
 }
+h4{
+  margin: 0px;
+  margin-bottom: 8px;
+  font-size: x-large;
+}
 
 .description {
-  font-size: x-large;
+  font-size: medium;
   margin-bottom: 20px;
-  color: #f1d9d9;
-
+  color: #fff;
 }
 
 .step-container {
@@ -239,6 +246,9 @@ h1.text-center{
   box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);
   background-color: #ebe7e7;
   border-radius: 8px;
+  opacity: 0; /* Start invisible */
+  transform: translateX(-50px); /* Start position */
+  animation: fadeInLeft 1s ease-out forwards;
 }
 
 .step-container.reverse {
@@ -264,7 +274,7 @@ h1.text-center{
 }
 
 .step-image img {
-  max-width: 70%;
+  max-width: 90%;
   height: auto;
   padding-bottom: 30px;
   border-radius: 10px;
@@ -288,17 +298,38 @@ h1.text-center{
   }
 }
 
+.q-table{
+  opacity: 0; /* Start invisible */
+  transform: translateX(-50px); /* Start position */
+  animation: fadeInLeft 1s ease-out forwards;
+}
 
+.q-table thead th{
+  font-size: small;
+}
 .q-table tbody td{
-  font-size: x-small;
+  font-size: smaller;
 }
 
 .q-table__middle.scroll{
   overflow-x: hidden;
 }
 
-.q-field--auto-height.q-field--dense .q-field__control, .q-field--auto-height.q-field--dense .q-field__native{
-  min-height: 20px;
-  font-size: smaller;
-  padding: 0;
+
+.print-rec-btn{
+  background-color: $bright-btn;
+  color: #fff;
 }
+
+.q-table__control{
+  
+  label div{
+    background-color: #fff;
+    div{
+      border:  none;
+      background-color: #fff;
+      transform-origin: center;
+      transform: scale(0.9);
+    }
+  }
+} 

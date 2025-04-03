@@ -31,7 +31,7 @@
     </q-table>
 
     <div class="print-btn-container">
-      <q-btn color="primary" icon="print" label="Print Records" @click="printRecords" />
+      <q-btn class="print-rec-btn" icon="print" label="Print Records" @click="printRecords" />
     </div>
 
     <footer class="footer">
@@ -94,19 +94,16 @@ export default {
     fetchRecords() {
       const rec = localStorage.getItem("localSessionRecords");
       this.paysplitRecords = [];
-      if(rec){
-        for(const row of JSON.parse(rec)){
-          //const txid_link = `<a href="https://blockchair.com/bitcoin-cash/transaction/${row.txid}" a>` + row.txid +"</a>";
-          const prow = {
-              txid: row.txid,
-              bch_amount: row.bch_amount + " BCH",
-              php_amount: row.php_amount + " PHP",
-              timestamp: row.timestamp,
-          };
-          this.paysplitRecords.push(prow);
-        }
+      if (rec) {
+        this.paysplitRecords = JSON.parse(rec)
+          .map(row => ({
+            txid: row.txid,
+            bch_amount: row.bch_amount + " BCH",
+            php_amount: row.php_amount + " PHP",
+            timestamp: row.timestamp,
+          }))
+          .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)); // Sort descending (latest first)
       }
-
     },
   }
 };

@@ -8,10 +8,10 @@
           alt="paytaca-paysplit-title.png" />
 
         </q-toolbar-title>
-        <q-btn flat dense class="toolbar-btn" label="Home" @click="goToHome()" />
-        <q-btn flat dense class="toolbar-btn" label="Get Started" @click="getStarted()" />
-        <q-btn flat dense class="toolbar-btn" label="How it Works" @click="goToHowItWorks()" />
-        <q-btn flat dense class="toolbar-btn" label="Transactions" @click="goToLocalRecords()"/>
+        <q-btn flat dense class="toolbar-btn" :class="{'active-page': currPage === 0}" label="Home" @click="goToHome()" />
+        <q-btn flat dense class="toolbar-btn" :class="{'active-page': currPage === 1}" label="How it Works" @click="goToHowItWorks()" />
+        <q-btn flat dense class="toolbar-btn" :class="{'active-page': currPage === 2}" label="Transactions" @click="goToLocalRecords()"/>
+        <q-btn unelevated class="toolbar-btn-start" label="Get Started" @click="getStarted()" />
 
       </q-toolbar>
     </q-header>
@@ -141,9 +141,9 @@
             <span class="bch-unit basic-mode-amount-unit">PHP</span>
             <div class="custom-arrows">
               <q-btn dense flat icon="keyboard_arrow_up"
-              @click="amountToSplit = Math.min(9999, amountToSplit + 100)" />
+              @click="amountToSplit = Math.min(9999, amountToSplit + 10)" />
               <q-btn dense flat icon="keyboard_arrow_down"
-              @click="amountToSplit = Math.max(1, amountToSplit - 100)" />
+              @click="amountToSplit = Math.max(1, amountToSplit - 10)" />
             </div>
           </template>
         </q-input>
@@ -262,7 +262,7 @@
 <q-dialog v-model="showQRCodes" persistent>
   <q-card class="q-pa-md kkb-forms qrcode-form">
     <q-card-section class="qrcode-form-title-con">
-      <div class="text-h6 text-bold">Payment QR Code</div>
+      <div class="text-h6 text-bold">Payment QR Codes</div>
     </q-card-section>
 
     <q-card-section class="q-pa-md flex items-center qrcode-pay-detail-con">
@@ -336,43 +336,6 @@
 </q-dialog>
 
 
-<q-dialog v-model="transactionEndDialog">
-  <q-card class="txid-dialog-card">
-    <q-card-section>
-      <div class="text-h6 text-bold">Transaction Successful!</div>
-    </q-card-section>
-
-    <q-card-section class="transact-details-con">
-      <div class="txid-sec">
-          <q-input class="txid-field"
-          v-model="lasttxid"
-          :disable="true"
-          label="Transaction ID"
-          dense
-          outlined
-          />
-          <q-btn class='copy-btn' flat color="primary" icon="fa-solid fa-copy" @click="copyTxid()"/>
-      </div>
-      <div class="receipt-sec"> 
-        <q-input class="merchant-name-field"
-        v-model="merchantName"
-        label="Merchant Name"
-        dense
-        outlined
-        />
-        <div class="receipt-summary-con">
-          <label class="receipt-field-label">Transaction Receipt</label>
-          <pre id="formatted_receipt">{{this.lastReceipt}}</pre>
-        </div>
-      </div>
-    </q-card-section>
-
-    <q-card-actions class="txid-d-btns" align="left">
-      <q-btn class="proceed-btn text-capitalize" @click="printReceipt()" label="Print Receipt" />
-      <q-btn class="cancel-btn text-capitalize" color="text-white-grey" flat @click="transactionEndDialog = false; getStarted();" label="Close" />
-    </q-card-actions>
-  </q-card>
-</q-dialog>
 
 
 <q-page-container style="padding: 0 !important;">
@@ -404,6 +367,7 @@
     data() {
       return {
         basicMode: true,
+        currPage: 0,
         bchAddress: "",
         rememberMe: true,
         getStartedDialog: false,
@@ -457,15 +421,23 @@
       tempWalletBalancePHP: 0,
       networkFee: 1500,
       lasttxid: null,
-      transactionEndDialog: false,
-      merchantName: "Random Merchant",
-      lastReceipt: null,
       paysplitRecords: [],
 
     };
   },
   mounted() {
     window.getStarted = this.getStarted; 
+
+    const cpage = this.$route.path;
+    if(cpage === "/"){
+      this.currPage = 0;
+    }
+    if(cpage === "/how-it-works"){
+      this.currPage = 1;
+    }
+    if(cpage === "/session-records"){
+      this.currPage = 2;
+    }
 
     this.merchantName = (localStorage.getItem('merchName')) ? localStorage.getItem('merchName') : "Random Merchant";
     this.checkRecords();
@@ -525,12 +497,15 @@
       this.basicMode = true;
     },
     goToHome() {
+      this.currPage = 0;
       this.$router.push('/');
     },
     goToHowItWorks() {
+      this.currPage = 1;
       this.$router.push('/how-it-works');
     },
     goToLocalRecords(){
+      this.currPage = 2;
       this.$router.push('/session-records')
     },
 
@@ -997,7 +972,7 @@
       if (!this.bchPesoPrice || this.bchPesoPrice == 0) {
         this.$q.notify({
           type: 'negative',
-          message: 'Error Occurred! Cannot fetch BCH price.',
+          message: 'Disconnected! Cannot fetch BCH price.',
           position: 'top'
         });
         return;
@@ -1080,14 +1055,19 @@
       if(/^[a-fA-F0-9]{64}$/.test(result)){
         this.lasttxid = result;
 
-        this.lastReceipt = await this.prepareReceipt();
-        console.log("Receipt:\n", this.lastReceipt);
-
         this.$q.loading.hide();
         this.showQRCodes = false;
         this.clearBackupData();
         this.updateRecords();
-        this.transactionEndDialog = true;   
+        
+        this.$q.notify({
+          type: 'positive',
+          message: 'Transaction Complete!',
+          position: 'top'
+        }); 
+
+        this.goToLocalRecords();
+
       }
     } catch (err) {
       console.error("Error broadcasting transaction:", err);
@@ -1361,83 +1341,6 @@
     },
 
 
-
-    async loadReceiptTemplate() {
-      const response = await fetch('/template/rtemp.txt');
-      const text = await response.text();
-      return text;
-    },
-
-/*    async finalizeReceipt(receipt) {
-      const fr = receipt.toString();
-      return fr.replace('{MERCHANT_NAME}', this.merchantName);
-    }, */
-
-    async prepareReceipt(){
-        let template = await this.loadReceiptTemplate();
-
-        let items_str = "";
-        for(const item of this.items){
-            const name = (item.name.length < 12) ? item.name : item.name.slice(0, 12);
-            items_str += '>' + name + ' (x' + item.quantity + ') ' + Number(item.quantity * item.price * (1/this.bchPesoPrice)).toFixed(8) +"BCH/" + Number(item.quantity * item.price).toFixed(2) + "PHP" + "\n";
-        }
-
-        let payers_str = "";
-        for(const payer of this.participantsQRPairs){
-            const name = (payer.name.length < 17) ? payer.name : payer.name.slice(0, 17);
-            payers_str += '>' + name + ' ' + Number(payer.amount).toFixed(8) +"BCH/" + Number(payer.amount * (this.bchPesoPrice)).toFixed(2) + "PHP" + "\n";
-        }
-        let fee_str = Number(this.networkFee/100000000).toFixed(8) + "BCH/"+Number((this.networkFee/100000000)*(this.bchPesoPrice)).toFixed(2)+"PHP\n";
-
-        let total_pay_str = Number(this.tempWalletBalance).toFixed(8) + "BCH/"+ Number(this.tempWalletBalancePHP).toFixed(2)+"PHP\n";
-        let txid_str = this.lasttxid.slice(0, 32) + "\n" + this.lasttxid.slice(32, 64);
-        const data = {
-          timestamp: new Date().toLocaleString(),
-          item_list: items_str,
-          payer_list: payers_str,
-          netfee: fee_str,
-          total_pay: total_pay_str, 
-          txid: txid_str,
-        }
-
-
-
-        return template
-        .replace('{TIMESTAMP}', data.timestamp)
-        .replace('{ITEM_INPUTS}', data.item_list)
-        .replace('{NET_FEE}', data.netfee)
-        .replace('{TOTAL_PAYMENT}', data.total_pay)
-        .replace('{PAYER_LIST}', data.payer_list)
-        .replace('{TXID}', data.txid);
-    },
-
-    printReceipt(){
-        this.lastReceipt = this.lastReceipt.replace('{MERCHANT_NAME}', this.merchantName);
-        const mn = localStorage.getItem('merchName');
-        if(mn !== this.merchantName){
-            localStorage.setItem('merchName', this.merchantName);
-        }
-        //console.log("Receipt:\n", this.lastReceipt);
-        
-        //You can proceed with connecting to the thermal printer here and pass 'fr' to be printed
-        //example (needs Thermal Printer as default printer)
-        /*const printContainer = document.createElement("div");
-        printContainer.innerHTML = '<pre>'+this.lastReceipt+'</pre>'; 
-        const originalBody = document.body.innerHTML;
-        document.body.innerHTML = printContainer.innerHTML;
-        window.print();
-        document.body.innerHTML = originalBody;*/
-        this.$q.notify({
-            type: 'negative',
-            message: 'Cannot print receipt. Under construction!',
-            position: 'top'
-          });
-
-        this.transactionEndDialog = false;  
-        this.goToLocalRecords();
-    },
-
-
     fetchRecords() {
       const rec = localStorage.getItem("localSessionRecords");
       this.paysplitRecords = rec ? JSON.parse(rec) : []; 
@@ -1453,7 +1356,6 @@
 
       this.fetchRecords();
       if(this.paysplitRecords.length === 0){
-        console.log("EXP was set: ", this.paysplitRecords.length);
         localStorage.setItem("recordsExpiry", (new Date()).getTime() + 2592000000); //store 1-month (2592000000 ms) time
       } 
       this.paysplitRecords.push(nrecord);
@@ -1465,8 +1367,7 @@
       localStorage.removeItem("localSessionRecords");
     },
     checkRecords(){
-      const expiry = localStorage.getItem("recordsExpiry");
-      console.log("checkExp: ",expiry); 
+      const expiry = localStorage.getItem("recordsExpiry"); 
       if(expiry){
         const now = new Date();
         if (now.getTime() > expiry) {

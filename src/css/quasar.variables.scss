@@ -1,16 +1,6 @@
 // Quasar SCSS (& Sass) Variables
 // --------------------------------------------------
-// To customize the look and feel of this app, you can override
-// the Sass/SCSS variables found in Quasar's source Sass/SCSS files.
 
-// Check documentation for full list of Quasar variables
-
-// Your own variables (that are declared here) and Quasar's own
-// ones will be available out of the box in your .vue/.scss/.sass files
-
-// It's highly recommended to change the default colors
-// to match your app's branding.
-// Tip: Use the "Theme Builder" on Quasar's documentation website.
 $primary   : rgb(141, 50, 50);
 $dropdown-bg : #a4abbc;
 $dialog-bg-color: rgb(152, 167, 184);
@@ -27,7 +17,6 @@ $banner-color: rgb(108, 117, 128);
 $primary-darker-bg: #45565c;
 
 $primary-bgrey-bg: rgb(47, 67, 77);//---dropdown bg---
-
 $primary-dark-bg: #90b6c5;//-----card bg---
 
 $transparent-darker-bg: #45565c95;//-----cancel btn bg----//
@@ -39,16 +28,15 @@ $input-text-grey: #2f2f2f;
 $text-white-grey: #bcbbbb; 
 $transparent-x-darker-bg: #95999a7c; //bg
 $primary-dark-border:#171d20; //border
-//--------------------------------------------------//
-
-
-
 $primary-dark-border:#171d20;
 $primary-field-bg: #3b535b;
 $transparent-darker: #28313477;
 $transparent-xx-darker: #28313477;
-//$primary-light : #2fAAD2;
-//$primary-dark : #773333;
+
+$bright-btn: #c23a4f; 
+$bright-btn-hover: #a23240;
+
+
 $secondary : #26A69A;
 $accent    : #9C27B0;
 $field-theme: #ecf1ff;

@@ -1066,7 +1066,12 @@
           position: 'top'
         }); 
 
-        this.goToLocalRecords();
+        if(this.currPage === 2){
+          this.$router.go(0);
+        }
+        else{
+          this.goToLocalRecords();
+        }
 
       }
     } catch (err) {

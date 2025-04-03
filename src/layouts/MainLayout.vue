@@ -11,7 +11,7 @@
         <q-btn flat dense class="toolbar-btn" label="Home" @click="goToHome()" />
         <q-btn flat dense class="toolbar-btn" label="Get Started" @click="getStarted()" />
         <q-btn flat dense class="toolbar-btn" label="How it Works" @click="goToHowItWorks()" />
-        <q-btn flat dense class="toolbar-btn" label="Session Records" @click="goToSessionRecords()"/>
+        <q-btn flat dense class="toolbar-btn" label="Transactions" @click="goToLocalRecords()"/>
 
       </q-toolbar>
     </q-header>
@@ -362,20 +362,20 @@
         />
         <div class="receipt-summary-con">
           <label class="receipt-field-label">Transaction Receipt</label>
-          <pre>{{this.lastReceipt}}</pre>
+          <pre id="formatted_receipt">{{this.lastReceipt}}</pre>
         </div>
       </div>
     </q-card-section>
 
     <q-card-actions class="txid-d-btns" align="left">
       <q-btn class="proceed-btn text-capitalize" @click="printReceipt()" label="Print Receipt" />
-      <q-btn class="cancel-btn text-capitalize" color="text-white-grey" flat @click="updateSessionRecords(); transactionEndDialog = false; getStarted();" label="Close" />
+      <q-btn class="cancel-btn text-capitalize" color="text-white-grey" flat @click="transactionEndDialog = false; getStarted();" label="Close" />
     </q-card-actions>
   </q-card>
 </q-dialog>
 
 
-<q-page-container>
+<q-page-container style="padding: 0 !important;">
 
 </q-page-container>
 </q-layout>
@@ -396,7 +396,6 @@
 
   window.process = process;
   window.Buffer = Buffer;
-
 
 
 
@@ -461,12 +460,15 @@
       transactionEndDialog: false,
       merchantName: "Random Merchant",
       lastReceipt: null,
+      paysplitRecords: [],
 
     };
   },
   mounted() {
     window.getStarted = this.getStarted; 
-    //this.transactionEndDialog = true;
+
+    this.merchantName = (localStorage.getItem('merchName')) ? localStorage.getItem('merchName') : "Random Merchant";
+    this.checkRecords();
 
     try {
       const savedBackupData = JSON.parse(localStorage.getItem('interruptDataBackup')) || [];
@@ -528,7 +530,7 @@
     goToHowItWorks() {
       this.$router.push('/how-it-works');
     },
-    goToSessionRecords(){
+    goToLocalRecords(){
       this.$router.push('/session-records')
     },
 
@@ -579,6 +581,7 @@
           this.showAddExpenseForm();
           this.saveInitiatorAddress();
           this.getStartedDialog = !this.getStartedDialog;
+          this.onSetTotalAmount();
         }
         else {
           this.validAddress = false;
@@ -608,6 +611,7 @@
         if(this.amountToSplit && (this.amountToSplit > 0)) {
           this.items = [];
           this.items.push({ name: 'Item Bundle', quantity: 1, price: this.amountToSplit, filteredSuggestions: [] });
+          //console.log(this.items);
         }
         else{
           this.amountToSplit = 1;
@@ -624,6 +628,7 @@
       if (!this.basicMode) {
         this.showSplitExpenseForm = false;
         this.addExpenseFormVisible = true;
+        this.onSetTotalAmount();
       }
       else {
         this.showSplitExpenseForm = true;
@@ -1081,6 +1086,7 @@
         this.$q.loading.hide();
         this.showQRCodes = false;
         this.clearBackupData();
+        this.updateRecords();
         this.transactionEndDialog = true;   
       }
     } catch (err) {
@@ -1362,10 +1368,10 @@
       return text;
     },
 
-    async finalizeReceipt(receipt) {
+/*    async finalizeReceipt(receipt) {
       const fr = receipt.toString();
       return fr.replace('{MERCHANT_NAME}', this.merchantName);
-    },
+    }, */
 
     async prepareReceipt(){
         let template = await this.loadReceiptTemplate();
@@ -1373,22 +1379,23 @@
         let items_str = "";
         for(const item of this.items){
             const name = (item.name.length < 12) ? item.name : item.name.slice(0, 12);
-            items_str += ' >' + name + ' ' + item.quantity + ' ' + Number(item.quantity * item.price * (1/this.bchPesoPrice)).toFixed(8) +"BCH / " + Number(item.quantity * item.price).toFixed(2) + "PHP" + "\n";
+            items_str += '>' + name + ' (x' + item.quantity + ') ' + Number(item.quantity * item.price * (1/this.bchPesoPrice)).toFixed(8) +"BCH/" + Number(item.quantity * item.price).toFixed(2) + "PHP" + "\n";
         }
 
         let payers_str = "";
         for(const payer of this.participantsQRPairs){
             const name = (payer.name.length < 17) ? payer.name : payer.name.slice(0, 17);
-            payers_str += ' >' + name + ' ' + Number(payer.amount).toFixed(8) +"BCH / " + Number(payer.amount * (1/this.bchPesoPrice)).toFixed(2) + "PHP" + "\n";
+            payers_str += '>' + name + ' ' + Number(payer.amount).toFixed(8) +"BCH/" + Number(payer.amount * (this.bchPesoPrice)).toFixed(2) + "PHP" + "\n";
         }
+        let fee_str = Number(this.networkFee/100000000).toFixed(8) + "BCH/"+Number((this.networkFee/100000000)*(this.bchPesoPrice)).toFixed(2)+"PHP\n";
 
-        let total_pay_str = this.tempWalletBalance + "BCH / "+ this.tempWalletBalancePHP+"PHP\n";
+        let total_pay_str = Number(this.tempWalletBalance).toFixed(8) + "BCH/"+ Number(this.tempWalletBalancePHP).toFixed(2)+"PHP\n";
         let txid_str = this.lasttxid.slice(0, 32) + "\n" + this.lasttxid.slice(32, 64);
         const data = {
           timestamp: new Date().toLocaleString(),
           item_list: items_str,
           payer_list: payers_str,
-          netfee: this.networkFee,
+          netfee: fee_str,
           total_pay: total_pay_str, 
           txid: txid_str,
         }
@@ -1405,16 +1412,69 @@
     },
 
     printReceipt(){
-        let fr = this.finalizeReceipt(this.lastReceipt);
-        console.log("Receipt:\n", fr);
-
+        this.lastReceipt = this.lastReceipt.replace('{MERCHANT_NAME}', this.merchantName);
+        const mn = localStorage.getItem('merchName');
+        if(mn !== this.merchantName){
+            localStorage.setItem('merchName', this.merchantName);
+        }
+        //console.log("Receipt:\n", this.lastReceipt);
+        
         //You can proceed with connecting to the thermal printer here and pass 'fr' to be printed
+        //example (needs Thermal Printer as default printer)
+        /*const printContainer = document.createElement("div");
+        printContainer.innerHTML = '<pre>'+this.lastReceipt+'</pre>'; 
+        const originalBody = document.body.innerHTML;
+        document.body.innerHTML = printContainer.innerHTML;
+        window.print();
+        document.body.innerHTML = originalBody;*/
+        this.$q.notify({
+            type: 'negative',
+            message: 'Cannot print receipt. Under construction!',
+            position: 'top'
+          });
+
+        this.transactionEndDialog = false;  
+        this.goToLocalRecords();
     },
 
-    updateSessionRecords(){
-      //-----------
+
+    fetchRecords() {
+      const rec = localStorage.getItem("localSessionRecords");
+      this.paysplitRecords = rec ? JSON.parse(rec) : []; 
     },
 
+    updateRecords() {
+      const nrecord = {
+        txid: this.lasttxid,
+        bch_amount: Number(this.amountToSplit * 1 / this.bchPesoPrice).toFixed(8),
+        php_amount: Number(this.amountToSplit).toFixed(2),
+        timestamp: new Date().toLocaleString(),
+      };
+
+      this.fetchRecords();
+      if(this.paysplitRecords.length === 0){
+        console.log("EXP was set: ", this.paysplitRecords.length);
+        localStorage.setItem("recordsExpiry", (new Date()).getTime() + 2592000000); //store 1-month (2592000000 ms) time
+      } 
+      this.paysplitRecords.push(nrecord);
+      localStorage.setItem("localSessionRecords", JSON.stringify(this.paysplitRecords));
+
+      window.paysplitRecords = []; // Clear array to free memory
+    },
+    clearRecords(){
+      localStorage.removeItem("localSessionRecords");
+    },
+    checkRecords(){
+      const expiry = localStorage.getItem("recordsExpiry");
+      console.log("checkExp: ",expiry); 
+      if(expiry){
+        const now = new Date();
+        if (now.getTime() > expiry) {
+          localStorage.removeItem("recordsExpiry");
+          this.clearRecords();
+        }
+      }
+    },
 
   },
 

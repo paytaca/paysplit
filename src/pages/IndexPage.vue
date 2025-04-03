@@ -23,7 +23,7 @@
         <div class="footer-container">
           <div class="footer-section">
             <h1 style="font-size: xx-large">Let's keep in touch!</h1>
-            <p style="font-size: large">Find us on any of these platforms and follow our updates.</p>
+            <p class="foot-message">Find us on any of these platforms and follow our updates.</p>
             <div class="social-icons">
               <a href="#"><i class="fab fa-facebook"></i></a>
               <a href="#"><i class="fab fa-twitter"></i></a>
@@ -38,7 +38,7 @@
 
         <hr />
         <div class="footer-bottom">
-          <p>Copyright © 2025</p>
+          <p class="f-copyright-text">Copyright © 2025</p>
         </div>
       </footer>
     </q-page>

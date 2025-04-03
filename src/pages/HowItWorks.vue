@@ -99,7 +99,7 @@
         <div class="footer-container">
           <div class="footer-section">
             <h1 style="font-size: xx-large">Let's keep in touch!</h1>
-            <p style="font-size: large">Find us on any of these platforms and follow our updates.</p>
+            <p class="foot-message">Find us on any of these platforms and follow our updates.</p>
             <div class="social-icons">
               <a href="#"><i class="fab fa-facebook"></i></a>
               <a href="#"><i class="fab fa-twitter"></i></a>
@@ -111,9 +111,10 @@
             </div>
           </div>
         </div>
+
         <hr />
         <div class="footer-bottom">
-          <span>Copyright © 2025</span>
+          <p class="f-copyright-text">Copyright © 2025</p>
         </div>
       </footer>
     </q-page>
@@ -128,7 +129,6 @@
   import step5 from 'src/assets/step5.png'
   import step6 from 'src/assets/step6.png'
   import "src/css/page.scss";
-  import "src/css/howitworks.scss";
 
   export default {
     name: 'LandingPage',

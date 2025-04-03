@@ -2,25 +2,25 @@
   PAYTACA PAYSPLIT TRANSACTION RECEIPT
 =========================================
 _________________________________________
- Merchant: 
-    {MERCHANT_NAME}
+Merchant: 
+{MERCHANT_NAME}
 
- Date: {TIMESTAMP}
+Date: {TIMESTAMP}
 _________________________________________
- Item(s)      Qty. TotalPrice(BCH/PHP)
+Item(s)  Qty.     TotalPrice(BCH/PHP)
 -----------------------------------------
- {ITEM_INPUTS}
+{ITEM_INPUTS}
 
 -----------------------------------------
- Network Fee:      {NET_FEE}
+Network Fee:      {NET_FEE}
 _________________________________________
- Total Amount:     {TOTAL_PAYMENT}
+Total Amount:     {TOTAL_PAYMENT}
 _________________________________________
- Payer(s)          Amounts Paid
- {PAYER_LIST}
+Payer(s)          Amounts Paid
+{PAYER_LIST}
 
- Transaction ID:
- {TXID}
+Transaction ID:
+{TXID}
 =========================================
 Thank you for using Paytaca Paysplit! 
 For support, visit: www.paytaca.com
